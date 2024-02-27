@@ -10,6 +10,21 @@ export default defineConfig({
   server: {
     port: 4200,
     host: 'localhost',
+    proxy: {
+      // ターゲットとなる外部のURL
+      '/gadm.org': {
+        target: 'https://gadm.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/gadm.org/, ''),
+      },
+      '/geodata.ucdavis.edu': {
+        target: 'https://geodata.ucdavis.edu',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/geodata.ucdavis.edu/, ''),
+      },
+    },
   },
 
   preview: {
@@ -30,6 +45,10 @@ export default defineConfig({
     commonjsOptions: {
       transformMixedEsModules: true,
     },
+    rollupOptions:{
+      external: [
+      ],
+    }
   },
 
   test: {
