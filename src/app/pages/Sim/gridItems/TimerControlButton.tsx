@@ -15,6 +15,9 @@ export function TimerControlButton(props?: LayoutDefault): FloatingButtonItem {
       isDraggable: true,
       isResizable: false,
       resizeHandles: [],
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'TimerControlButton',
@@ -22,8 +25,6 @@ export function TimerControlButton(props?: LayoutDefault): FloatingButtonItem {
       bindToPanelId: 'TimerControlPanel',
       tooltip: 'Open TimerControl Panel',
       icon: <Timer />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
     },
   };
 }

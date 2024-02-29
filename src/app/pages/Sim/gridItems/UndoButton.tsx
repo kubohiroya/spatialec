@@ -15,16 +15,15 @@ export function UndoButton(props?: LayoutDefault): FloatingButtonItem {
       resizeHandles: [],
       isDraggable: true,
       isResizable: false,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'UndoButton',
       type: GridItemTypes.FloatingButton,
       tooltip: 'undo',
       icon: <Undo />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
-      x: props?.x,
-      y: props?.y,
     },
   };
 }

@@ -15,6 +15,9 @@ export function ChartButton(props?: LayoutDefault): FloatingButtonItem {
       isDraggable: true,
       isResizable: false,
       resizeHandles: [],
+      enabled: props?.enabled ?? true,
+      shown: props?.shown ?? true,
+      maximized: false,
     },
     resource: {
       id: 'ChartButton',
@@ -22,8 +25,6 @@ export function ChartButton(props?: LayoutDefault): FloatingButtonItem {
       bindToPanelId: 'ChartPanel',
       tooltip: 'Open Chart Panel',
       icon: <BarChart />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
     },
   };

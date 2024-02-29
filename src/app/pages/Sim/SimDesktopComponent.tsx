@@ -64,6 +64,7 @@ import { TimeMachineButton } from './gridItems/TimeMachineButton';
 import { TimeMachinePanel } from './gridItems/TimeMachinePanel';
 import { TimeMachinePanelComponent } from './components/TimeMachinePanelComponent';
 import { ProjectTable } from '/app/services/database/ProjectTable';
+import { LayoutState } from '/app/pages/Sim/LayoutState';
 
 export const ROW_HEIGHT = 32;
 export const RESIZE_HANDLES: ResizeHandle[] = ['se', 'sw', 'nw'];
@@ -72,7 +73,7 @@ const getRows = (height?: number) =>
   height && height > 0 ? Math.floor(height / ROW_HEIGHT) - 3 : 0;
 const getX = (
   props: { x?: number; width?: number },
-  layoutDefault: LayoutDefault,
+  layoutDefault: LayoutDefault
 ) => {
   if (props.x) {
     if (props.x >= 0) {
@@ -85,13 +86,13 @@ const getX = (
 };
 const getY = (
   props: { y?: number; height?: number },
-  layoutDefault: LayoutDefault,
+  layoutDefault: LayoutDefault
 ) => {
   if (props.y) {
     if (props.y >= 0) {
       return props.y;
-    } else if (layoutDefault.height && layoutDefault.height > 0) {
-      const rows = getRows(layoutDefault.height);
+    } else if (layoutDefault.clientHeight && layoutDefault.clientHeight > 0) {
+      const rows = getRows(layoutDefault.clientHeight);
       return rows + props.y;
     }
   }
@@ -166,7 +167,7 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     setUIState,
   });
 
-  const [layouts, setLayouts] = useState<ReactGridLayout.Layout[]>([]);
+  const [layouts, setLayouts] = useState<LayoutState[]>([]);
   const [resources, setResources] = useState<
     Record<string, FloatingItemResource>
   >({});
@@ -209,7 +210,7 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
         replaceURL(draft.viewportCenter);
       });
     },
-    [setUIState],
+    [setUIState]
   );
 
   const {
@@ -254,14 +255,14 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
   const replaceURL = useCallback(
     (viewportCenter: [number, number, number]) => {
       const updatedViewportCenter = viewportCenter.map((value) =>
-        parseFloat(value.toFixed(4)),
+        parseFloat(value.toFixed(4))
       ) as [number, number, number];
       const url = `/${type}/${uuid}/${updatedViewportCenter[0]}/${updatedViewportCenter[1]}/${updatedViewportCenter[2]}/`;
       asyncFunctionManager.runAsyncFunction(() => {
         navigate(url, { replace: true });
       });
     },
-    [navigate, type, uuid],
+    [navigate, type, uuid]
   );
 
   const onZoom = useCallback(
@@ -272,7 +273,7 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
         return draft;
       });
     },
-    [setUIState],
+    [setUIState]
   );
 
   const onZoomIn = useCallback(() => onZoom(0.25), [onZoom]);
@@ -301,37 +302,37 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     TimerControlButton: { enabled: false },
     TimerControlPanel: { y: 9 },
     MatricesButton: { enabled: false },
-    MatricesPanel: { height, y: -9 },
+    MatricesPanel: { clientHeight: height, y: -9 },
     LayersButton: { enabled: false },
     LayersPanel: { shown: false },
     TimeMachineButton: { enabled: false },
-    TimeMachinePanel: { shown: true, x: -1, y: -4, height, w: 27, h: 3 },
+    TimeMachinePanel: { shown: true, x: -1, y: -4, clientHeight: height, w: 27, h: 3 },
     InfoButton: { shown: false },
     InfoPanel: { shown: false },
     UndoButton: {
-      height,
+      clientHeight: height,
       y: -6,
       onClick: undoSessionState,
       enabled: history.length > 0,
     },
     RedoButton: {
-      height,
+      clientHeight: height,
       y: -5,
       onClick: redoSessionState,
       enabled: future.length > 0,
     },
     ZoomInButton: {
-      height,
+      clientHeight: height,
       y: -3,
       onClick: onZoomIn,
     },
     ZoomOutButton: {
-      height,
+      clientHeight: height,
       y: -2,
       onClick: onZoomOut,
     },
     FitScreenButton: {
-      height,
+      clientHeight: height,
       y: -1,
       onClick: onFitScreen,
     },
@@ -352,19 +353,19 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
       EditPanel: { x: 10, y: 0, shown: true },
       LayersPanel: { x: -1, y: 10, shown: true },
       MatricesButton: { enabled: true },
-      MatricesPanel: { height, y: -9, shown: false },
+      MatricesPanel: { clientHeight: height, y: -9, shown: false },
     },
   };
 
   useEffect(() => {
     return () => {
       asyncFunctionManager.cancelAll();
-      ProjectTable.updateViewportCenter(uuid,  uiState.viewportCenter);
+      ProjectTable.updateViewportCenter(uuid, uiState.viewportCenter);
     };
   }, [uiState.viewportCenter, uuid]);
 
   useEffect(() => {
-    const newLayouts: ReactGridLayout.Layout[] = [];
+    const newLayouts: LayoutState[] = [];
     const newResources: Record<
       string,
       FloatingButtonResource | FloatingPanelResource
@@ -403,8 +404,6 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
         if (item.resource) {
           newResources[item.resource.id] = {
             ...item.resource,
-            x: item.layout?.x,
-            y: item.layout?.y,
           };
         }
         if (item.layout) {
@@ -492,7 +491,7 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     setResources((draft: Record<string, FloatingItemResource>) => {
       draft.ZoomInButton = ZoomInButton({
         ...draft.ZoomInButton,
-        height,
+        clientHeight: height,
         onClick: onZoomIn,
       }).resource;
       return draft;
@@ -503,7 +502,7 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     setResources((draft) => {
       draft.ZoomOutButton = ZoomOutButton({
         ...draft.ZoomOutButton,
-        height,
+        clientHeight: height,
         onClick: onZoomOut,
         //y: gridItemStates[type].ZoomOutButton.y,
       }).resource;
@@ -515,7 +514,7 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     setResources((draft: Record<string, FloatingItemResource>) => {
       draft.FitScreenButton = FitScreenButton({
         ...draft.FitScreenButton,
-        height,
+        clientHeight: height,
         onClick: onFitScreen,
         //y: gridItemStates[type].FitScreenButton.y,
       }).resource;
@@ -609,6 +608,7 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
 
   return (
     <DesktopComponent
+      uuid={uuid}
       initialLayouts={layouts}
       resources={resources}
       gridItemChildrenMap={gridItemChildrenMap}

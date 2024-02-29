@@ -15,17 +15,16 @@ export function ZoomInButton(props?: LayoutDefault): FloatingButtonItem {
       resizeHandles: [],
       isDraggable: true,
       isResizable: false,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'ZoomInButton',
       type: GridItemTypes.FloatingButton,
       tooltip: 'zoom in',
       icon: <ZoomIn />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
-      x: props?.x,
-      y: props?.y,
     },
   };
 }

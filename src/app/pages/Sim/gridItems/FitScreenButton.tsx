@@ -15,17 +15,16 @@ export function FitScreenButton(props?: LayoutDefault): FloatingButtonItem {
       resizeHandles: [],
       isDraggable: true,
       isResizable: false,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'FitScreenButton',
       type: GridItemTypes.FloatingButton,
       tooltip: 'fit to screen',
       icon: <FitScreen />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
-      x: props?.x,
-      y: props?.y,
     },
   };
 }

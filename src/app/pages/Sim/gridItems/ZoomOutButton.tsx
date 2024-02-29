@@ -15,17 +15,16 @@ export function ZoomOutButton(props?: LayoutDefault): FloatingButtonItem {
       resizeHandles: [],
       isDraggable: true,
       isResizable: false,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'ZoomOutButton',
       type: GridItemTypes.FloatingButton,
       tooltip: 'zoom out',
       icon: <ZoomOut />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
-      onClick: props?.onClick,
-      x: props?.x,
-      y: props?.y,
+      onClick: props?.onClick
     },
   };
 }

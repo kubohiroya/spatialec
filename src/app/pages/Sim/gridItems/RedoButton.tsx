@@ -16,17 +16,16 @@ export function RedoButton(props?: LayoutDefault): FloatingButtonItem {
       resizeHandles: [],
       isDraggable: true,
       isResizable: false,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'RedoButton',
       type: GridItemTypes.FloatingButton,
       tooltip: 'redo',
       icon: <Redo />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
-      x: props?.x,
-      y: props?.y,
     },
   };
 }

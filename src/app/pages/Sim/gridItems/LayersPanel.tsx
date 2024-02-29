@@ -16,6 +16,9 @@ export function LayersPanel(props?: LayoutDefault): FloatingPanelItem {
       isDraggable: true,
       isResizable: true,
       resizeHandles: RESIZE_HANDLES,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'LayersPanel',
@@ -24,7 +27,6 @@ export function LayersPanel(props?: LayoutDefault): FloatingPanelItem {
       icon: <Layers />,
       titleBarMode: 'win',
       rowHeight: ROW_HEIGHT,
-      shown: props?.shown ?? true,
       bindToButtonId: 'LayersButton',
     },
   };

@@ -15,6 +15,9 @@ export function HomeButton(props?: LayoutDefault): FloatingButtonItem {
       resizeHandles: [],
       isDraggable: true,
       isResizable: false,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'HomeButton',
@@ -22,8 +25,6 @@ export function HomeButton(props?: LayoutDefault): FloatingButtonItem {
       tooltip: 'Home',
       icon: <Home />,
       navigateTo: '/',
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
     },
   };

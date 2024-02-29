@@ -15,6 +15,9 @@ export function LayersButton(props?: LayoutDefault): FloatingButtonItem {
       isDraggable: true,
       isResizable: false,
       resizeHandles: [],
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'LayersButton',
@@ -22,8 +25,6 @@ export function LayersButton(props?: LayoutDefault): FloatingButtonItem {
       bindToPanelId: 'LayersPanel',
       tooltip: 'Open Layers Panel',
       icon: <Layers />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
     },
   };

@@ -5,6 +5,7 @@ export type LayoutDefault = {
   h?: number;
   enabled?: boolean;
   shown?: boolean;
-  height?: number; // FIXME: rename this to be 'clientHeight'
+  maximized?: boolean;
+  clientHeight?: number;
   onClick?: () => void;
 };

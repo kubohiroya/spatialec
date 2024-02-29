@@ -5,30 +5,20 @@ import {
   GeoDatabaseTableTypes,
 } from '../../models/GeoDatabaseTableType';
 import { LayerPanelState } from '/app/models/LayerPanelState';
-
-type ComponentState = {
-  name: string;
-  x: number;
-  y: number;
-  zIndex: number;
-  width: number;
-  height: number;
-  shown: boolean;
-  enabled: boolean;
-}
+import { LayoutState } from '/app/pages/Sim/LayoutState';
 
 export class Projects extends Dexie {
   public layerPanelState: Dexie.Table<LayerPanelState, number>;
   static layerPanelState = 'layerPanelState';
 
-  public componentState: Dexie.Table<ComponentState, number>;
-  static componentState = 'componentState';
+  public layoutState: Dexie.Table<LayoutState, number>;
+  static layoutState = 'layoutState';
 
   public constructor(name: string) {
     super(name);
-    this.version(12).stores({
+    this.version(14).stores({
       layerPanelState: '++id',
-      componentState: '++id, name',
+      layoutState: '++id, &i',
     });
     this.layerPanelState = this.table(Projects.layerPanelState);
     this.layerPanelState.toArray().then((layerPanelState) => {
@@ -42,10 +32,31 @@ export class Projects extends Dexie {
       }
     });
 
-    this.componentState = this.table(Projects.componentState);
+    this.layoutState = this.table(Projects.layoutState);
   }
 
-  async getLayerPanelState(): Promise<LayerPanelState|undefined> {
+  static async saveComponentState(
+    uuid: string,
+    layoutStates: LayoutState[]
+  ) {
+    const componentState = layoutStates.map((l, index) => {
+      return { ...l,  zIndex: index };
+    });
+    const db = await Projects.openProject(uuid);
+    db.transaction('rw', db.layoutState, async () => {
+      await db.layoutState.clear();
+      await db.layoutState.bulkAdd(componentState);
+    });
+  }
+
+  static async getComponentState(
+    uuid: string
+  ): Promise<LayoutState[] | undefined> {
+    const db = await Projects.openProject(uuid);
+    return await db.layoutState.toArray();
+  }
+
+  async getLayerPanelState(): Promise<LayerPanelState | undefined> {
     const layerPanelState =
       (await this.layerPanelState.toArray()) as LayerPanelState[];
     if (layerPanelState && layerPanelState.length > 0) {
@@ -55,30 +66,25 @@ export class Projects extends Dexie {
     }
   }
 
-  async getComponentState(name: string): Promise<ComponentState|undefined>{
-    return await this.componentState.where('name').equals(name).last();
+  async getComponentState(name: string): Promise<LayoutState | undefined> {
+    return await this.layoutState.where('name').equals(name).last();
   }
 
-  async updateComponentState(name: string, componentState: Partial<ComponentState>): Promise<void>{
-    await this.componentState.where('name').equals(name).modify(componentState);
+  async updateComponentState(
+    name: string,
+    componentState: Partial<LayoutState>
+  ): Promise<void> {
+    await this.layoutState.where('name').equals(name).modify(componentState);
   }
 
-  async updateLayerPanelState(
-    layerPanelState: Partial<LayerPanelState>
-  ) {
+  async updateLayerPanelState(layerPanelState: Partial<LayerPanelState>) {
     const draft = (await this.layerPanelState.toArray())[0];
     await this.layerPanelState
       .update(draft, layerPanelState)
       .then(function (updated) {
-        if (updated)
-          console.log('updated', draft, layerPanelState, updated);
+        if (updated) console.log('updated', draft, layerPanelState, updated);
         else
-          console.log(
-            'Nothing was updated',
-            draft,
-            layerPanelState,
-            updated
-          );
+          console.log('Nothing was updated', draft, layerPanelState, updated);
       });
   }
 

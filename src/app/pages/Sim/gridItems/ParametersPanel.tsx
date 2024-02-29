@@ -18,6 +18,9 @@ export function ParametersPanel(props?: LayoutDefault): FloatingPanelItem {
       isDraggable: true,
       isResizable: true,
       resizeHandles: RESIZE_HANDLES,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'ParametersPanel',
@@ -27,7 +30,6 @@ export function ParametersPanel(props?: LayoutDefault): FloatingPanelItem {
       titleBarMode: 'win',
       rowHeight: ROW_HEIGHT,
       bindToButtonId: 'ParametersButton',
-      shown: props?.shown ?? true,
     },
   };
 }

@@ -15,6 +15,9 @@ export function InputOutputButton(props?: LayoutDefault): FloatingButtonItem {
       resizeHandles: [],
       isDraggable: true,
       isResizable: false,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'InputOutputButton',
@@ -22,8 +25,6 @@ export function InputOutputButton(props?: LayoutDefault): FloatingButtonItem {
       bindToPanelId: 'InputOutputPanel',
       tooltip: 'Open Input/Output Panel',
       icon: <FolderOpen />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
     },
   };

@@ -10,7 +10,4 @@ export type FloatingItemResource = {
   title?: string;
   titleBarMode?: 'win' | 'mac';
   rowHeight?: number;
-  x?: number;
-  y?: number;
-  shown?: boolean;
 };

@@ -21,6 +21,9 @@ export function TimeMachinePanel(props?: LayoutDefault): FloatingPanelItem {
       isDraggable: true,
       isResizable: true,
       resizeHandles: RESIZE_HANDLES,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'TimeMachinePanel',
@@ -29,7 +32,6 @@ export function TimeMachinePanel(props?: LayoutDefault): FloatingPanelItem {
       icon: <History />,
       titleBarMode: 'win',
       rowHeight: ROW_HEIGHT,
-      shown: props?.shown ?? true,
       bindToButtonId: 'TimeMachineButton',
     },
   };

@@ -15,6 +15,9 @@ export function ParametersButton(props?: LayoutDefault): FloatingButtonItem {
       isDraggable: true,
       isResizable: false,
       resizeHandles: [],
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'ParametersButton',
@@ -22,8 +25,6 @@ export function ParametersButton(props?: LayoutDefault): FloatingButtonItem {
       bindToPanelId: 'ParametersPanel',
       tooltip: 'Open Parameters Panel',
       icon: <Tune />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
     },
   };

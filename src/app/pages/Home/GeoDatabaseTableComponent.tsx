@@ -1,7 +1,10 @@
-import React, { ReactNode } from "react";
-import { Box, Tab, Tabs } from "@mui/material";
-import { Outlet, useNavigate } from "react-router-dom";
-import { GeoDatabaseTableType, GeoDatabaseTableTypes } from "/app/models/GeoDatabaseTableType";
+import React, { ReactNode } from 'react';
+import { Box, Tab, Tabs } from '@mui/material';
+import { Outlet, useNavigate } from 'react-router-dom';
+import {
+  GeoDatabaseTableType,
+  GeoDatabaseTableTypes,
+} from '/app/models/GeoDatabaseTableType';
 
 type GeoDatabaseTableComponentProps = {
   type: GeoDatabaseTableType;
@@ -35,7 +38,7 @@ function a11yProps(index: number) {
 }
 
 export const GeoDatabaseTableComponent = (
-  props: GeoDatabaseTableComponentProps,
+  props: GeoDatabaseTableComponentProps
 ) => {
   const navigate = useNavigate();
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -55,6 +58,8 @@ export const GeoDatabaseTableComponent = (
           value={value}
           onChange={handleChange}
           aria-label="tabs"
+          textColor={value === 0 ? 'primary' : 'secondary'}
+          indicatorColor={value === 0 ? 'primary' : 'secondary'}
         >
           <Tab label="Resources" {...a11yProps(0)} />
           <Tab label="Projects" {...a11yProps(1)} />

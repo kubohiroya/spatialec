@@ -15,6 +15,9 @@ export function InfoButton(props?: LayoutDefault): FloatingButtonItem {
       resizeHandles: [],
       isDraggable: true,
       isResizable: false,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'InfoButton',
@@ -22,8 +25,6 @@ export function InfoButton(props?: LayoutDefault): FloatingButtonItem {
       tooltip: 'Info',
       icon: <Info />,
       bindToPanelId: 'InfoPanel',
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
     },
   };

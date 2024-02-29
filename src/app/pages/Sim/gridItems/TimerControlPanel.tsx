@@ -21,6 +21,9 @@ export function TimerControlPanel(props?: LayoutDefault): FloatingPanelItem {
       isDraggable: true,
       isResizable: true,
       resizeHandles: RESIZE_HANDLES,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'TimerControlPanel',
@@ -29,7 +32,6 @@ export function TimerControlPanel(props?: LayoutDefault): FloatingPanelItem {
       icon: <Timer />,
       titleBarMode: 'win',
       rowHeight: ROW_HEIGHT,
-      shown: true,
       bindToButtonId: 'TimerControlButton',
     },
   };

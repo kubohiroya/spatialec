@@ -6,17 +6,20 @@ import { RESIZE_HANDLES, ROW_HEIGHT } from "../SimDesktopComponent";
 import { FloatingPanelItem } from "/app/models/FloatingPanelItem";
 import { LayoutDefault } from "/app/pages/Sim/LayoutDefault";
 
-export function ChartPanel(prop: LayoutDefault): FloatingPanelItem {
+export function ChartPanel(props: LayoutDefault): FloatingPanelItem {
   return {
     layout: {
       i: 'ChartPanel',
-      x: prop?.x ?? 22,
-      y: prop?.y ?? 0,
-      w: prop?.w ?? 10,
-      h: prop?.h ?? 10,
+      x: props?.x ?? 22,
+      y: props?.y ?? 0,
+      w: props?.w ?? 10,
+      h: props?.h ?? 10,
       isDraggable: true,
       isResizable: true,
       resizeHandles: RESIZE_HANDLES,
+      enabled: props?.enabled ?? true,
+      shown: props?.shown ?? true,
+      maximized: false,
     },
     resource: {
       id: 'ChartPanel',
@@ -25,7 +28,6 @@ export function ChartPanel(prop: LayoutDefault): FloatingPanelItem {
       icon: <BarChart />,
       titleBarMode: 'win',
       rowHeight: ROW_HEIGHT,
-      shown: true,
       bindToButtonId: 'ChartButton',
     },
   };

@@ -1,5 +1,5 @@
-import ReactGridLayout from 'react-grid-layout';
+import { LayoutState } from '/app/pages/Sim/LayoutState';
 
 export type FloatingItem = {
-  layout: ReactGridLayout.Layout;
+  layout: LayoutState;
 };

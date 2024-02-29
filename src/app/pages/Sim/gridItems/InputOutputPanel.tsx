@@ -18,6 +18,9 @@ export function InputOutputPanel(props?: LayoutDefault): FloatingPanelItem {
       resizeHandles: RESIZE_HANDLES,
       isDraggable: true,
       isResizable: true,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'InputOutputPanel',
@@ -26,7 +29,6 @@ export function InputOutputPanel(props?: LayoutDefault): FloatingPanelItem {
       icon: <FolderOpen />,
       titleBarMode: 'win',
       rowHeight: ROW_HEIGHT,
-      shown: props?.shown,
       bindToButtonId: 'InputOutputButton',
     },
   };

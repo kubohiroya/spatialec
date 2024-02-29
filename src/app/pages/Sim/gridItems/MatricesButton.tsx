@@ -15,6 +15,10 @@ export function MatricesButton(props?: LayoutDefault): FloatingButtonItem {
       isDraggable: true,
       isResizable: false,
       resizeHandles: [],
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
+
     },
     resource: {
       id: 'MatricesButton',
@@ -22,8 +26,6 @@ export function MatricesButton(props?: LayoutDefault): FloatingButtonItem {
       bindToPanelId: 'MatricesPanel',
       tooltip: 'Open Matrices Panel',
       icon: <GridOn />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
     },
   };

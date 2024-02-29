@@ -13,11 +13,13 @@ export function BackgroundPanel(prop?: LayoutDefault): FloatingPanelItem {
       h: prop?.h ?? 1,
       resizeHandles: [],
       static: true,
+      enabled: true,
+      shown: prop?.shown ?? true,
+      maximized: prop?.maximized ?? false,
     },
     resource: {
       id: 'BackgroundPanel',
       type: GridItemTypes.BackgroundPanel,
-      shown: true,
     },
   };
 }

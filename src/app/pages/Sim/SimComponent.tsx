@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ComponentState, ReactNode, useEffect, useState } from 'react';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { City, resetCity } from '/app/models/City';
@@ -57,6 +57,7 @@ type SimComponentProps = {
     overrideViewportCenter: (viewportCenter: [number, number, number]) => void;
   }) => ReactNode;
 };
+
 export const SimComponent = (props: SimComponentProps) => {
   const { type, uuid, backgroundPanel, backgroundColor, viewportCenter } =
     props;
@@ -88,7 +89,7 @@ export const SimComponent = (props: SimComponentProps) => {
 
   const resetToCaseDefault = () => {
     const caseDefault = DEFAULT_PARAMS_BY_CASE[type].find(
-      (c: ParameterSet) => sessionState.parameterSet.caseId === c.caseId,
+      (c: ParameterSet) => sessionState.parameterSet.caseId === c.caseId
     );
     caseDefault &&
       setSessionState((draft) => {
@@ -101,27 +102,35 @@ export const SimComponent = (props: SimComponentProps) => {
   };
 
   function startSimulation() {
-    setSessionState((draft) => {
-      // TODO
-    }, true, 'simulationStart');
+    setSessionState(
+      (draft) => {
+        // TODO
+      },
+      true,
+      'simulationStart'
+    );
   }
 
   function stopSimulation() {
-    setSessionState((draft) => {
-      // TODO
-    }, true, 'simulationStop');
+    setSessionState(
+      (draft) => {
+        // TODO
+      },
+      true,
+      'simulationStop'
+    );
   }
 
   function resetSimulation() {
     setSessionState(
       (draft) => {
         draft.locations.forEach((city) =>
-          resetCity(city, draft.locations.length),
+          resetCity(city, draft.locations.length)
         );
         resetToCaseDefault();
       },
       true,
-      'resetSimulation',
+      'resetSimulation'
     );
   }
 
@@ -131,7 +140,7 @@ export const SimComponent = (props: SimComponentProps) => {
         tickSimulator(draft, matrices.transportationCostMatrix!);
       },
       false,
-      'tick',
+      'tick'
     );
   }
 
@@ -144,19 +153,19 @@ export const SimComponent = (props: SimComponentProps) => {
 
   const matrixEngine = useMatrixEngine(
     sessionState?.locations?.length,
-    sessionState?.edges?.length,
+    sessionState?.edges?.length
   );
 
   const updateMatrices = (
     locations: City[],
     edges: Edge[],
-    transportationCost: number,
+    transportationCost: number
   ): Promise<AppMatrices> => {
     if (!matrixEngine) throw new Error();
     return matrixEngine.updateAdjacencyMatrix(
       locations,
       edges,
-      transportationCost,
+      transportationCost
     );
   };
 
@@ -164,7 +173,7 @@ export const SimComponent = (props: SimComponentProps) => {
     updateMatrices(
       locations,
       edges,
-      sessionState.parameterSet.transportationCost,
+      sessionState.parameterSet.transportationCost
     ).then((newMatrices) => {
       setMatrices({
         adjacencyMatrix: newMatrices.adjacencyMatrix,

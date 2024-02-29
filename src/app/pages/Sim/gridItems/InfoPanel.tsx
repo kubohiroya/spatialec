@@ -18,6 +18,9 @@ export function InfoPanel(props?: LayoutDefault): FloatingPanelItem {
       resizeHandles: RESIZE_HANDLES,
       isDraggable: true,
       isResizable: true,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'InfoPanel',
@@ -27,7 +30,6 @@ export function InfoPanel(props?: LayoutDefault): FloatingPanelItem {
       titleBarMode: 'win',
       rowHeight: ROW_HEIGHT,
       bindToButtonId: 'InfoButton',
-      shown: false,
     },
   };
 }

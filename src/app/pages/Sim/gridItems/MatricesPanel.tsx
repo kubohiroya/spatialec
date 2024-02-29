@@ -16,6 +16,9 @@ export function MatricesPanel(props?: LayoutDefault): FloatingPanelItem {
       isDraggable: true,
       isResizable: true,
       resizeHandles: RESIZE_HANDLES,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'MatricesPanel',
@@ -24,7 +27,6 @@ export function MatricesPanel(props?: LayoutDefault): FloatingPanelItem {
       icon: <GridOn />,
       titleBarMode: 'win',
       rowHeight: ROW_HEIGHT,
-      shown: props?.shown ?? true,
       bindToButtonId: 'MatricesButton',
     },
   };

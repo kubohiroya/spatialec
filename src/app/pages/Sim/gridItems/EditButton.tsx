@@ -15,6 +15,9 @@ export function EditButton(props: LayoutDefault): FloatingButtonItem {
       resizeHandles: [],
       isDraggable: true,
       isResizable: false,
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'EditButton',
@@ -22,8 +25,6 @@ export function EditButton(props: LayoutDefault): FloatingButtonItem {
       bindToPanelId: 'EditPanel',
       tooltip: 'Open Edit Panel',
       icon: <Edit />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
       onClick: props?.onClick,
     },
   };

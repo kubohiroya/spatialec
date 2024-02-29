@@ -15,6 +15,9 @@ export function TimeMachineButton(props?: LayoutDefault): FloatingButtonItem {
       isDraggable: true,
       isResizable: false,
       resizeHandles: [],
+      shown: props?.shown ?? true,
+      enabled: props?.enabled ?? true,
+      maximized: false,
     },
     resource: {
       id: 'TimeMachineButton',
@@ -22,8 +25,6 @@ export function TimeMachineButton(props?: LayoutDefault): FloatingButtonItem {
       bindToPanelId: 'TimeMachinePanel',
       tooltip: 'Open TimeMachine Panel',
       icon: <History />,
-      shown: props?.shown ?? true,
-      enabled: props?.enabled ?? true,
     },
   };
 }

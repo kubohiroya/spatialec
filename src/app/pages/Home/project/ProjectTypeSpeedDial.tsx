@@ -1,8 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import { ProjectTypes } from '/app/models/ProjectType';
-import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
+import {
+  SpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon,
+  makeStyles,
+  useTheme,
+} from '@mui/material';
 import React from 'react';
 import { TypeIcons } from '/app/pages/Home/resource/TypeIcons';
+import { AddCircle, RemoveCircle } from '@mui/icons-material';
 
 export function ProjectTypeSpeedDial() {
   const navigate = useNavigate();
@@ -30,9 +37,15 @@ export function ProjectTypeSpeedDial() {
     },
   ];
 
+  const theme = useTheme();
+
   return (
     <SpeedDial
-      style={{ position: 'fixed', bottom: '20px', right: '20px' }}
+      style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+      }}
       direction="up"
       ariaLabel="Create new project"
       icon={<SpeedDialIcon />}
