@@ -9,7 +9,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { Box, CardContent } from '@mui/material';
 import styled from '@emotion/styled';
-import {
+import ReactGridLayout, {
   ItemCallback,
   Responsive as ResponsiveGridLayout,
 } from 'react-grid-layout';
@@ -69,16 +69,6 @@ export const DesktopComponent = (props: DesktopComponentProps) => {
     string,
     ReactNode
   > | null>(null);
-
-  const onLayoutChange = useCallback(
-    (
-      currentLayout: ReactGridLayout.Layout[],
-      allLayouts: ReactGridLayout.Layouts
-    ) => {
-      console.log('onLayoutChange');
-    },
-    []
-  );
 
   const createForefrontLayoutStatesMap = useCallback(
     (
@@ -146,193 +136,193 @@ export const DesktopComponent = (props: DesktopComponentProps) => {
     []
   );
 
-  const onLayoutStateMapChange = useCallback(
-    (layoutStateMap: Record<string, LayoutState> | null) => {
+  const update = useCallback(
+    (
+      layoutStateMap: Record<
+        string,
+        ReactGridLayout.Layout & ComponentState
+      > | null
+    ) => {
       if (layoutStateMap === null) return;
-      Projects.saveLayoutState(props.uuid, Object.values(layoutStateMap));
-      update(layoutStateMap);
+
+      const createGridItem = (
+        layoutStateMap: Record<string, LayoutState> | null,
+        id: string,
+        resource: FloatingItemResource,
+        children: ReactNode
+      ) => {
+        if (!layoutStateMap || !resource) return null;
+
+        const onForefront = (
+          layoutStateMap: Record<string, LayoutState> | null,
+          panelId: string
+        ) => {
+          const newLayoutStateMap = createForefrontLayoutStatesMap(
+            layoutStateMap,
+            panelId
+          );
+          console.log('onForefront', panelId);
+          update(newLayoutStateMap);
+        };
+
+        const onShow = (
+          layoutStateMap: Record<string, LayoutState> | null,
+          panelId: string,
+          buttonId: string,
+          newValue: boolean
+        ) => {
+          if (layoutStateMap === null) return;
+          const newLayoutStateMap = {
+            ...layoutStateMap,
+            [panelId]: { ...layoutStateMap[panelId], shown: newValue },
+            [buttonId]: { ...layoutStateMap[buttonId], enabled: !newValue },
+          };
+          console.log('onClose', panelId, buttonId, newLayoutStateMap);
+          update(createForefrontLayoutStatesMap(newLayoutStateMap, panelId));
+        };
+
+        const onMaximize = (
+          layoutStateMap: Record<string, LayoutState> | null,
+          panelId: string,
+          maximized: boolean
+        ) => {
+          const newLayoutStateMap = createForefrontLayoutStatesMap(
+            layoutStateMap,
+            panelId,
+            { maximized }
+          );
+          console.log('onMaximize', panelId, newLayoutStateMap);
+          update(newLayoutStateMap);
+        };
+
+        switch (resource.type) {
+          case 'FloatingButton': {
+            const buttonResource = resource as FloatingButtonResource;
+            return (
+              <FloatingButton
+                id={id}
+                key={id}
+                tooltip={buttonResource.tooltip ?? ''}
+                onClick={() => {
+                  if (buttonResource.bindToPanelId) {
+                    onShow(
+                      layoutStateMap,
+                      buttonResource.bindToPanelId,
+                      id,
+                      true
+                    );
+                  } else if (buttonResource.onClick) {
+                    buttonResource.onClick();
+                  } else if (buttonResource.navigateTo) {
+                    navigate(buttonResource.navigateTo);
+                  }
+                }}
+                disabled={!(layoutStateMap[id]?.enabled || false)}
+              >
+                {buttonResource.icon}
+              </FloatingButton>
+            );
+          }
+          case 'FloatingPanel': {
+            const panelResource = resource as FloatingPanelResource;
+            return (
+              <FloatingPanel
+                id={id}
+                key={id}
+                shown={layoutStateMap[id]?.shown}
+                title={panelResource.title ?? ''}
+                icon={panelResource.icon}
+                setToFront={() => onForefront(layoutStateMap, id)}
+                rowHeight={panelResource.rowHeight ?? 0}
+                titleBarMode={panelResource.titleBarMode ?? 'win'}
+                onClose={() => {
+                  if (panelResource.bindToButtonId) {
+                    onShow(
+                      layoutStateMap,
+                      id,
+                      panelResource.bindToButtonId,
+                      false
+                    );
+                  }
+                }}
+                onMaximize={(maximize: boolean) => {
+                  onMaximize(layoutStateMap, id, maximize);
+                }}
+                maximized={layoutStateMap[id]?.maximized}
+              >
+                <FloatingPanelContent>{children}</FloatingPanelContent>
+              </FloatingPanel>
+            );
+          }
+          default:
+            throw new Error(resource.type);
+        }
+      };
+
+      Projects.saveLayoutState(props.uuid, Object.values(layoutStateMap)).then(
+        () => {
+          setLayoutStateMap(layoutStateMap);
+          setGridItemMap(
+            Object.keys(layoutStateMap).reduce((acc, id) => {
+              acc[id] = createGridItem(
+                layoutStateMap,
+                id,
+                props.layoutResourceMap[id].resource,
+                props.gridItemMap[id]
+              );
+              return acc;
+            }, {} as Record<string, ReactNode>)
+          );
+        }
+      );
     },
-    [props.uuid]
+    [
+      createForefrontLayoutStatesMap,
+      navigate,
+      props.gridItemMap,
+      props.layoutResourceMap,
+      props.uuid,
+    ]
+  );
+
+  const onLayoutChange = useCallback(
+    (layout: ReactGridLayout.Layout[], allLayouts: ReactGridLayout.Layouts) => {
+      const map = layout.reduce((acc, value, index) => {
+        if (layoutStateMap === null) return acc;
+        acc[value.i] = {
+          ...layoutStateMap[value.i],
+          ...value,
+        };
+        return acc;
+      }, {} as Record<string, LayoutState>);
+      console.log('onLayoutChange', map);
+      // update(map);
+    },
+    [layoutStateMap, update]
   );
 
   const onResizeStop: ItemCallback = useCallback(
     (current, oldItem, newItem, placeholder, e, element) => {
-      onLayoutStateMapChange(
-        createForefrontLayoutStatesMap(layoutStateMap, newItem.i)
-      );
+      console.log('resizeStop', newItem.i);
+      update(createForefrontLayoutStatesMap(layoutStateMap, newItem.i));
     },
-    [createForefrontLayoutStatesMap, layoutStateMap, onLayoutStateMapChange]
+    [createForefrontLayoutStatesMap, layoutStateMap, update]
   );
 
   const onDragStop: ItemCallback = useCallback(
     (current, oldItem, newItem, placeholder, e, element) => {
-      onLayoutStateMapChange(
-        createForefrontLayoutStatesMap(layoutStateMap, newItem.i)
-      );
+      console.log('dragStop', newItem.i);
+      update(createForefrontLayoutStatesMap(layoutStateMap, newItem.i));
     },
-    [createForefrontLayoutStatesMap, layoutStateMap, onLayoutStateMapChange]
-  );
-
-  const onForefront = useCallback(
-    (layoutStateMap: Record<string, LayoutState> | null, panelId: string) => {
-      const newLayoutStateMap = createForefrontLayoutStatesMap(
-        layoutStateMap,
-        panelId
-      );
-      console.log('onForefront', panelId);
-      onLayoutStateMapChange(newLayoutStateMap);
-    },
-    [createForefrontLayoutStatesMap, onLayoutStateMapChange]
-  );
-
-  const onShow = useCallback(
-    (
-      layoutStateMap: Record<string, LayoutState> | null,
-      panelId: string,
-      buttonId: string,
-      newValue: boolean
-    ) => {
-      if (layoutStateMap === null) return;
-      const newLayoutStateMap = {
-        ...layoutStateMap,
-        [panelId]: { ...layoutStateMap[panelId], shown: newValue },
-        [buttonId]: { ...layoutStateMap[buttonId], enabled: !newValue },
-      };
-      console.log('onClose', panelId, buttonId, newLayoutStateMap);
-      onLayoutStateMapChange(
-        createForefrontLayoutStatesMap(newLayoutStateMap, panelId)
-      );
-    },
-    [createForefrontLayoutStatesMap, onLayoutStateMapChange]
-  );
-
-  const onMaximize = useCallback(
-    (
-      layoutStateMap: Record<string, LayoutState> | null,
-      panelId: string,
-      maximized: boolean
-    ) => {
-      const newLayoutStateMap = createForefrontLayoutStatesMap(
-        layoutStateMap,
-        panelId,
-        { maximized }
-      );
-      console.log('onMaximize', panelId, newLayoutStateMap);
-      onLayoutStateMapChange(newLayoutStateMap);
-    },
-    [createForefrontLayoutStatesMap, onLayoutStateMapChange]
-  );
-
-  const createGridItem = useCallback(
-    (
-      layoutStateMap: Record<string, LayoutState> | null,
-      id: string,
-      resource: FloatingItemResource,
-      children: ReactNode
-    ) => {
-      if (!layoutStateMap || !resource) return null;
-      switch (resource.type) {
-        case 'FloatingButton': {
-          const buttonResource = resource as FloatingButtonResource;
-          return (
-            <FloatingButton
-              id={id}
-              key={id}
-              tooltip={buttonResource.tooltip ?? ''}
-              onClick={() => {
-                if (buttonResource.bindToPanelId) {
-                  onShow(
-                    layoutStateMap,
-                    buttonResource.bindToPanelId,
-                    id,
-                    true
-                  );
-                } else if (buttonResource.onClick) {
-                  buttonResource.onClick();
-                } else if (buttonResource.navigateTo) {
-                  navigate(buttonResource.navigateTo);
-                }
-              }}
-              disabled={!(layoutStateMap[id]?.enabled || false)}
-            >
-              {buttonResource.icon}
-            </FloatingButton>
-          );
-        }
-        case 'FloatingPanel': {
-          const panelResource = resource as FloatingPanelResource;
-          return (
-            <FloatingPanel
-              id={id}
-              key={id}
-              shown={layoutStateMap[id]?.shown}
-              title={panelResource.title ?? ''}
-              icon={panelResource.icon}
-              setToFront={() => onForefront(layoutStateMap, id)}
-              rowHeight={panelResource.rowHeight ?? 0}
-              titleBarMode={panelResource.titleBarMode ?? 'win'}
-              onClose={() => {
-                if (panelResource.bindToButtonId) {
-                  onShow(
-                    layoutStateMap,
-                    id,
-                    panelResource.bindToButtonId,
-                    false
-                  );
-                }
-              }}
-              onMaximize={(maximize: boolean) => {
-                onMaximize(layoutStateMap, id, maximize);
-              }}
-              maximized={layoutStateMap[id]?.maximized}
-            >
-              <FloatingPanelContent>{children}</FloatingPanelContent>
-            </FloatingPanel>
-          );
-        }
-        default:
-          throw new Error(resource.type);
-      }
-    },
-    [navigate, onForefront, onMaximize, onShow]
-  );
-
-  const update = useCallback(
-    (
-      layoutStateMap: Record<string, ReactGridLayout.Layout & ComponentState>
-    ) => {
-      setLayoutStateMap(layoutStateMap);
-      setGridItemMap(
-        Object.keys(layoutStateMap).reduce((acc, id) => {
-          acc[id] = createGridItem(
-            layoutStateMap,
-            id,
-            props.layoutResourceMap[id].resource,
-            props.gridItemMap[id]
-          );
-          return acc;
-        }, {} as Record<string, ReactNode>)
-      );
-    },
-    [
-      navigate,
-      onForefront,
-      onMaximize,
-      onShow,
-      props.gridItemMap,
-      props.layoutResourceMap,
-    ]
+    [createForefrontLayoutStatesMap, layoutStateMap, update]
   );
 
   const initialize = useCallback(async () => {
-    console.log('init 0');
     const storedLayouts: LayoutState[] | undefined =
       await Projects.getLayoutStates(props.uuid);
     if (!storedLayouts) {
-      console.log('init -');
       return;
     }
-    console.log('init 1');
     const layoutStateMap =
       storedLayouts.length === 0
         ? Object.keys(props.layoutResourceMap).reduce((acc, key) => {
@@ -343,16 +333,12 @@ export const DesktopComponent = (props: DesktopComponentProps) => {
             acc[layout.i as string] = layout;
             return acc;
           }, {} as Record<string, LayoutState>);
-    console.log('init 2');
     update(layoutStateMap);
-    console.log('init 3');
   }, [props.layoutResourceMap, props.uuid, update]);
 
   useEffect(() => {
     asyncFunctionManager.runAsyncFunction(async () => {
-      console.log('init start');
       await initialize();
-      console.log('init done');
     });
   }, [initialize]);
 
@@ -415,7 +401,8 @@ export const DesktopComponent = (props: DesktopComponentProps) => {
             compactType={'vertical'}
             autoSize={true}
             allowOverlap={true}
-            isResizable={false}
+            isResizable={true}
+            isDraggable={true}
             isBounded={false}
             width={width}
             draggableHandle=".draggable"
