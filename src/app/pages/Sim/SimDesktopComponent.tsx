@@ -6,97 +6,83 @@ import React, {
   useState,
 } from 'react';
 import { SessionState } from '/app/models/SessionState';
-import { FloatingItemResource } from '/app/models/FloatingItemResource';
 import { DesktopComponent } from './DesktopComponent';
 import { AppMatrices } from '/app/models/AppMatrices';
 import { AppPreference } from '/app/models/AppPreference';
 import { UIState } from '/app/models/UIState';
 import { AppSimulation } from '/app/models/AppSimulation';
-import { HomeButton } from './gridItems/HomeButton';
-import { ZoomInButton } from './gridItems/ZoomInButton';
-import { ZoomOutButton } from './gridItems/ZoomOutButton';
-import { FitScreenButton } from './gridItems/FitScreenButton';
-import { InputOutputButton } from './gridItems/InputOutputButton';
-import { InputOutputPanel } from './gridItems/InputOutputPanel';
-import { ChartPanel } from './gridItems/ChartPanel';
 import { useWindowDimensions } from '/app/hooks/useWindowDimenstions';
 import { useGraphEditActions } from './useGraphEditActions';
 import { useChartActions } from './useChartActions';
 import { City } from '/app/models/City';
 import { Edge } from '/app/models/Graph';
 import { useViewportActions } from './useViewportActions';
-import { useNavigate } from 'react-router-dom';
-import { ResizeHandle } from 'react-resizable';
-import { ChartButton } from './gridItems/ChartButton';
-import { ChartPanelComponent } from './components/ChartPanelComponent';
-import { InputOutputPanelComponent } from './components/InputOutputPanelComponent';
-import { EditPanelComponent } from './components/EditPanelComponent';
-import { BackgroundPanel } from './gridItems/BackgroundPanel';
 import { useParameterActions } from './useParameterActions';
 import { ProjectTypes } from '/app/models/ProjectType';
 import { sessionStateAtom } from './SimLoader';
 import { useUndoRedo } from '/app/hooks/useUndoRedo';
 import { AsyncFunctionManager } from '/app/utils/AsyncFunctionManager';
-import { LayoutDefault } from './LayoutDefault';
-import { InfoPanelComponent } from './components/InfoPanelComponent';
-import { LayersPanelComponent } from './components/LayerPanelComponent';
-import { ParametersPanelComponent } from './components/ParameterPanelComponent';
-import { MatricesPanelComponent } from './components/MatricesPanelComponent';
-import { TimerControlPanelComponent } from './components/TimerControlPanelComponent';
-import { FloatingButtonResource } from '/app/models/FloatingButtonResource';
-import { FloatingPanelResource } from '/app/models/FloatingPanelResource';
-import { EditButton } from './gridItems/EditButton';
-import { ParametersButton } from './gridItems/ParametersButton';
-import { ParametersPanel } from './gridItems/ParametersPanel';
-import { TimerControlButton } from './gridItems/TimerControlButton';
-import { TimerControlPanel } from './gridItems/TimerControlPanel';
-import { MatricesButton } from './gridItems/MatricesButton';
-import { MatricesPanel } from './gridItems/MatricesPanel';
-import { LayersButton } from './gridItems/LayersButton';
-import { LayersPanel } from './gridItems/LayersPanel';
-import { InfoButton } from './gridItems/InfoButton';
-import { InfoPanel } from './gridItems/InfoPanel';
-import { UndoButton } from './gridItems/UndoButton';
-import { RedoButton } from './gridItems/RedoButton';
-import { EditPanel } from './gridItems/EditPanel';
-import { NUM_HORIZONTAL_GRIDS } from './DesktopConstants';
-import { TimeMachineButton } from './gridItems/TimeMachineButton';
-import { TimeMachinePanel } from './gridItems/TimeMachinePanel';
-import { TimeMachinePanelComponent } from './components/TimeMachinePanelComponent';
+import { NUM_HORIZONTAL_GRIDS, ROW_HEIGHT } from './DesktopConstants';
 import { ProjectTable } from '/app/services/database/ProjectTable';
-import { LayoutState } from '/app/pages/Sim/LayoutState';
+import { CircularProgress } from '@mui/material';
+import { FullScreenBox } from '/components/FullScreenBox/FullScreenBox';
+import { useNavigate } from 'react-router-dom';
+import { TimerControlPanelComponent } from './components/TimerControlPanelComponent';
+import { TimeMachinePanelComponent } from './components/TimeMachinePanelComponent';
+import { MatricesPanelComponent } from './components/MatricesPanelComponent';
+import { InfoPanelComponent } from '/app/pages/Sim/components/InfoPanelComponent';
+import { LayersPanelComponent } from './components/LayerPanelComponent';
+import { InputOutputPanelComponent } from './components/InputOutputPanelComponent';
+import { EditPanelComponent } from './components/EditPanelComponent';
+import { ParametersPanelComponent } from './components/ParameterPanelComponent';
+import { ChartPanelComponent } from '/app/pages/Sim/components/ChartPanelComponent';
+import { InputOutputButton } from '/app/pages/Sim/gridItems/InputOutputButton';
+import { HomeButton } from '/app/pages/Sim/gridItems/HomeButton';
+import { InputOutputPanel } from '/app/pages/Sim/gridItems/InputOutputPanel';
+import { FitScreenButton } from '/app/pages/Sim/gridItems/FitScreenButton';
+import { ZoomOutButton } from '/app/pages/Sim/gridItems/ZoomOutButton';
+import { ChartButton } from '/app/pages/Sim/gridItems/ChartButton';
+import { ChartPanel } from '/app/pages/Sim/gridItems/ChartPanel';
+import { EditButton } from '/app/pages/Sim/gridItems/EditButton';
+import { EditPanel } from '/app/pages/Sim/gridItems/EditPanel';
+import { ParametersButton } from '/app/pages/Sim/gridItems/ParametersButton';
+import { ParametersPanel } from '/app/pages/Sim/gridItems/ParametersPanel';
+import { TimerControlButton } from '/app/pages/Sim/gridItems/TimerControlButton';
+import { TimerControlPanel } from '/app/pages/Sim/gridItems/TimerControlPanel';
+import { TimeMachineButton } from '/app/pages/Sim/gridItems/TimeMachineButton';
+import { TimeMachinePanel } from '/app/pages/Sim/gridItems/TimeMachinePanel';
+import { MatricesButton } from '/app/pages/Sim/gridItems/MatricesButton';
+import { MatricesPanel } from '/app/pages/Sim/gridItems/MatricesPanel';
+import { LayersButton } from '/app/pages/Sim/gridItems/LayersButton';
+import { LayersPanel } from '/app/pages/Sim/gridItems/LayersPanel';
+import { InfoButton } from '/app/pages/Sim/gridItems/InfoButton';
+import { InfoPanel } from '/app/pages/Sim/gridItems/InfoPanel';
+import { UndoButton } from '/app/pages/Sim/gridItems/UndoButton';
+import { RedoButton } from '/app/pages/Sim/gridItems/RedoButton';
+import { ZoomInButton } from '/app/pages/Sim/gridItems/ZoomInButton';
+import { mergeDeep } from '/app/utils/marge';
+import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
+import { FloatingButtonItem } from '/app/models/FloatingButtonItem';
+import { FloatingButtonResource } from '/app/models/FloatingButtonResource';
 
-export const ROW_HEIGHT = 32;
-export const RESIZE_HANDLES: ResizeHandle[] = ['se', 'sw', 'nw'];
-
-const getRows = (height?: number) =>
+const getRows = (height: number) =>
   height && height > 0 ? Math.floor(height / ROW_HEIGHT) - 3 : 0;
-const getX = (
-  props: { x?: number; width?: number },
-  layoutDefault: LayoutDefault
-) => {
-  if (props.x) {
-    if (props.x >= 0) {
-      return props.x;
-    } else {
-      return NUM_HORIZONTAL_GRIDS + props.x;
-    }
+const getX = (x: number) => {
+  if (x >= 0) {
+    return x;
+  } else {
+    return NUM_HORIZONTAL_GRIDS + x;
   }
-  return 0;
 };
-const getY = (
-  props: { y?: number; height?: number },
-  layoutDefault: LayoutDefault
-) => {
-  if (props.y) {
-    if (props.y >= 0) {
-      return props.y;
-    } else if (layoutDefault.clientHeight && layoutDefault.clientHeight > 0) {
-      const rows = getRows(layoutDefault.clientHeight);
-      return rows + props.y;
-    }
+const getY = (y: number, height: number) => {
+  const rows = getRows(height);
+  if (y < 0) {
+    return rows + y;
+  } else if (y >= 0 && y <= rows) {
+    return y;
+  } else {
+    return rows - 1;
   }
-  return 0;
 };
 
 type SimDesktopComponentProps = {
@@ -167,33 +153,14 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     setUIState,
   });
 
-  const [layouts, setLayouts] = useState<LayoutState[]>([]);
-  const [resources, setResources] = useState<
-    Record<string, FloatingItemResource>
-  >({});
+  const [layoutResourceMap, setLayoutResourceMap] = useState<Record<
+    string,
+    FloatingButtonItem | FloatingPanelItem
+  > | null>(null);
 
   const [gridItemChildrenMap, setGridItemChildrenMap] = useState<
     Record<string, ReactElement>
   >({});
-
-  const onMoved = ({ zoom, y, x }: { x: number; y: number; zoom: number }) => {
-    // do nothing
-  };
-
-  const onMovedEnd = ({
-    zoom,
-    y,
-    x,
-  }: {
-    x: number;
-    y: number;
-    zoom: number;
-  }) => {
-    setUIState((draft) => {
-      draft.viewportCenter = [zoom, y, x];
-      replaceURL(draft.viewportCenter);
-    });
-  };
 
   const { onFit } = useViewportActions({
     width,
@@ -202,16 +169,6 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     uiState,
     setUIState,
   });
-
-  const overrideViewportCenter = useCallback(
-    (viewportCenter: [number, number, number]) => {
-      setUIState((draft) => {
-        draft.viewportCenter = viewportCenter;
-        replaceURL(draft.viewportCenter);
-      });
-    },
-    [setUIState]
-  );
 
   const {
     // onAddLocation,
@@ -265,6 +222,35 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     [navigate, type, uuid]
   );
 
+  const overrideViewportCenter = useCallback(
+    (viewportCenter: [number, number, number]) => {
+      setUIState((draft) => {
+        draft.viewportCenter = viewportCenter;
+        replaceURL(draft.viewportCenter);
+        return draft;
+      });
+    },
+    [replaceURL, setUIState]
+  );
+
+  const onMoved = useCallback(
+    ({ zoom, y, x }: { x: number; y: number; zoom: number }) => {
+      // do nothing
+    },
+    []
+  );
+
+  const onMovedEnd = useCallback(
+    ({ zoom, y, x }: { x: number; y: number; zoom: number }) => {
+      setUIState((draft) => {
+        draft.viewportCenter = [zoom, y, x];
+        replaceURL(draft.viewportCenter);
+        return draft;
+      });
+    },
+    [replaceURL, setUIState]
+  );
+
   const onZoom = useCallback(
     (value: number) => {
       setUIState((draft) => {
@@ -273,7 +259,7 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
         return draft;
       });
     },
-    [setUIState]
+    [replaceURL, setUIState]
   );
 
   const onZoomIn = useCallback(() => onZoom(0.25), [onZoom]);
@@ -288,75 +274,6 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     });
   }, [onFit, replaceURL, setUIState]);
 
-  const gridItemStateBase: Record<string, LayoutDefault> = {
-    BackgroundPanel: {},
-    HomeButton: {},
-    ChartButton: { enabled: false },
-    ChartPanel: {},
-    InputOutputButton: { enabled: false },
-    InputOutputPanel: { shown: false },
-    EditButton: { enabled: false },
-    EditPanel: { shown: false },
-    ParametersButton: { enabled: false },
-    ParametersPanel: { x: 1, y: 0, w: 8, h: 4, shown: true },
-    TimerControlButton: { enabled: false },
-    TimerControlPanel: { y: 9 },
-    MatricesButton: { enabled: false },
-    MatricesPanel: { clientHeight: height, y: -9 },
-    LayersButton: { enabled: false },
-    LayersPanel: { shown: false },
-    TimeMachineButton: { enabled: false },
-    TimeMachinePanel: { shown: true, x: -1, y: -4, clientHeight: height, w: 27, h: 3 },
-    InfoButton: { shown: false },
-    InfoPanel: { shown: false },
-    UndoButton: {
-      clientHeight: height,
-      y: -6,
-      onClick: undoSessionState,
-      enabled: history.length > 0,
-    },
-    RedoButton: {
-      clientHeight: height,
-      y: -5,
-      onClick: redoSessionState,
-      enabled: future.length > 0,
-    },
-    ZoomInButton: {
-      clientHeight: height,
-      y: -3,
-      onClick: onZoomIn,
-    },
-    ZoomOutButton: {
-      clientHeight: height,
-      y: -2,
-      onClick: onZoomOut,
-    },
-    FitScreenButton: {
-      clientHeight: height,
-      y: -1,
-      onClick: onFitScreen,
-    },
-  };
-
-  const gridItemStates: Record<ProjectTypes, Record<string, LayoutDefault>> = {
-    [ProjectTypes.Racetrack]: { ...gridItemStateBase },
-    [ProjectTypes.Graph]: {
-      ...gridItemStateBase,
-      ParametersPanel: { x: 1, y: 0, w: 8, h: 4, shown: true },
-      InputOutputPanel: { x: 1, y: 13, shown: true },
-      EditPanel: { x: 10, y: 0, shown: true },
-    },
-    [ProjectTypes.RealWorld]: {
-      ...gridItemStateBase,
-      ParametersPanel: { x: 1, y: 0, w: 8, h: 4, shown: true },
-      InputOutputPanel: { x: 1, y: 13, shown: true },
-      EditPanel: { x: 10, y: 0, shown: true },
-      LayersPanel: { x: -1, y: 10, shown: true },
-      MatricesButton: { enabled: true },
-      MatricesPanel: { clientHeight: height, y: -9, shown: false },
-    },
-  };
-
   useEffect(() => {
     return () => {
       asyncFunctionManager.cancelAll();
@@ -365,57 +282,81 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
   }, [uiState.viewportCenter, uuid]);
 
   useEffect(() => {
-    const newLayouts: LayoutState[] = [];
-    const newResources: Record<
+    if (width === 0 || height === 0) {
+      return;
+    }
+
+    let layoutResourceMap: Record<
       string,
-      FloatingButtonResource | FloatingPanelResource
-    > = {};
-    [
-      BackgroundPanel,
-      HomeButton,
-      InputOutputButton,
-      InputOutputPanel,
-      ChartButton,
-      ChartPanel,
-      EditButton,
-      EditPanel,
-      ParametersButton,
-      ParametersPanel,
-      TimerControlButton,
-      TimerControlPanel,
-      TimeMachineButton,
-      TimeMachinePanel,
-      MatricesButton,
-      MatricesPanel,
-      LayersButton,
-      LayersPanel,
-      InfoButton,
-      InfoPanel,
-      UndoButton,
-      RedoButton,
-      ZoomInButton,
-      ZoomOutButton,
-      FitScreenButton,
-    ].forEach((func, index) => {
-      const item =
-        gridItemStates[type][func.name] &&
-        func(gridItemStates[type][func.name]);
+      FloatingButtonItem | FloatingPanelItem
+    > = {
+      HomeButton: HomeButton,
+      InputOutputButton: InputOutputButton,
+      InputOutputPanel: InputOutputPanel,
+      ChartButton: ChartButton,
+      ChartPanel: ChartPanel,
+      EditButton: EditButton,
+      EditPanel: EditPanel,
+      ParametersButton: ParametersButton,
+      ParametersPanel: ParametersPanel,
+      TimerControlButton: TimerControlButton,
+      TimerControlPanel: TimerControlPanel,
+      TimeMachineButton: TimeMachineButton,
+      TimeMachinePanel: TimeMachinePanel,
+      MatricesButton: MatricesButton,
+      MatricesPanel: MatricesPanel,
+      LayersButton: LayersButton,
+      LayersPanel: LayersPanel,
+      InfoButton: InfoButton,
+      InfoPanel: InfoPanel,
+      UndoButton: UndoButton,
+      RedoButton: RedoButton,
+      ZoomInButton: ZoomInButton,
+      ZoomOutButton: ZoomOutButton,
+      FitScreenButton: FitScreenButton,
+    };
+
+    if (type === ProjectTypes.Graph) {
+      layoutResourceMap = mergeDeep(layoutResourceMap, {
+        ParametersPanel: { resource: { x: 1, y: 0, w: 8, h: 4, shown: true } },
+        InputOutputPanel: { resource: { x: 1, y: 13, shown: true } },
+        EditPanel: { resource: { x: 10, y: 0, shown: true } },
+      });
+    } else if (type === ProjectTypes.RealWorld) {
+      layoutResourceMap = mergeDeep(layoutResourceMap, {
+        ParametersPanel: { resource: { x: 1, y: 0, w: 8, h: 4, shown: true } },
+        InputOutputPanel: { resource: { x: 1, y: 13, shown: true } },
+        EditPanel: { resource: { x: 10, y: 0, shown: true } },
+        LayersPanel: { resource: { x: -1, y: 10, shown: true } },
+        MatricesButton: { resource: { enabled: true } },
+        MatricesPanel: {
+          resource: { clientHeight: height, y: -9, shown: false },
+        },
+      });
+    }
+
+    Object.keys(layoutResourceMap).forEach((key, index) => {
+      const item = layoutResourceMap[key];
       if (item) {
-        if (item.resource) {
-          newResources[item.resource.id] = {
-            ...item.resource,
-          };
-        }
-        if (item.layout) {
-          item.layout.x = getX(item.layout, gridItemStates[type][func.name]);
-          item.layout.y = getY(item.layout, gridItemStates[type][func.name]);
-          newLayouts.push({ ...item.layout });
+        item.layout.x = getX(item.layout.x);
+        item.layout.y = getY(item.layout.y, height);
+        item.layout.zIndex = key.endsWith('Button') ? index * -1 : index;
+        const resource = item.resource as unknown as FloatingButtonResource;
+        switch (item.layout.i) {
+          case 'ZoomInButton':
+            resource.onClick = onZoomIn;
+            break;
+          case 'ZoomOutButton':
+            resource.onClick = onZoomOut;
+            break;
+          case 'FitScreenButton':
+            resource.onClick = onFitScreen;
+            break;
         }
       }
     });
 
-    setLayouts(newLayouts);
-    setResources(newResources);
+    setLayoutResourceMap(layoutResourceMap);
 
     setGridItemChildrenMap((draft) => ({
       ChartPanel: (
@@ -484,134 +425,47 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
           }}
         />
       ),
-    }));
-  }, []);
-
-  useEffect(() => {
-    setResources((draft: Record<string, FloatingItemResource>) => {
-      draft.ZoomInButton = ZoomInButton({
-        ...draft.ZoomInButton,
-        clientHeight: height,
-        onClick: onZoomIn,
-      }).resource;
-      return draft;
-    });
-  }, [onZoomIn]);
-
-  useEffect(() => {
-    setResources((draft) => {
-      draft.ZoomOutButton = ZoomOutButton({
-        ...draft.ZoomOutButton,
-        clientHeight: height,
-        onClick: onZoomOut,
-        //y: gridItemStates[type].ZoomOutButton.y,
-      }).resource;
-      return draft;
-    });
-  }, [onZoomOut]);
-
-  useEffect(() => {
-    setResources((draft: Record<string, FloatingItemResource>) => {
-      draft.FitScreenButton = FitScreenButton({
-        ...draft.FitScreenButton,
-        clientHeight: height,
-        onClick: onFitScreen,
-        //y: gridItemStates[type].FitScreenButton.y,
-      }).resource;
-      return draft;
-    });
-  }, [onFitScreen]);
-
-  useEffect(() => {
-    setGridItemChildrenMap((draft) => ({
-      ...draft,
-      ParametersPanel: (
-        <ParametersPanelComponent
-          {...{
-            type: props.type,
-            sessionStateAtom,
-            parameterSet: sessionState.parameterSet,
-            onParameterSetChange,
-            setNumLocations,
-            setManufactureShare,
-            setTransportationCost,
-            setElasticitySubstitution,
-          }}
-        />
-      ),
-    }));
-  }, [sessionState.parameterSet]);
-
-  useEffect(() => {
-    setGridItemChildrenMap((draft) => ({
-      ...draft,
-      ChartPanel: (
-        <ChartPanelComponent
-          {...{
-            sessionState,
-            uiState,
-            setSessionChartType,
-            setSessionChartScale,
-            onSelect,
-            onUnselect,
-            onFocus,
-            onUnfocus,
-          }}
-        />
-      ),
-    }));
-  }, [sessionState.locations, uiState]);
-
-  useEffect(() => {
-    setGridItemChildrenMap((draft) => ({
-      ...draft,
-      MatricesPanel: (
-        <MatricesPanelComponent
-          {...{
-            sessionState,
-            matrices,
-            uiState,
-            preferences,
-            onSelect,
-            onFocus,
-            onUnfocus,
-          }}
-        />
-      ),
-    }));
-  }, [matrices]);
-
-  useEffect(() => {
-    setGridItemChildrenMap((draft) => {
-      const newMap = { ...draft };
-      newMap.TimerControlPanel = (
+      TimeMachinePanel: <TimeMachinePanelComponent />,
+      TimerControlPanel: (
         <TimerControlPanelComponent simulation={props.simulation} />
-      );
-      return newMap;
-    });
-  }, [props.simulation]);
-
-  useEffect(() => {
-    setGridItemChildrenMap((draft) => ({
-      ...draft,
-      TimeMachinePanel: <TimeMachinePanelComponent {...{}} />,
+      ),
     }));
-  }, [uiState]);
-
-  if (
-    layouts.length === 0 ||
-    Object.keys(resources).length === 0 ||
-    Object.keys(gridItemChildrenMap).length === 0
-  ) {
-    return;
+  }, [
+    height,
+    onFitScreen,
+    onZoomIn,
+    onZoomOut,
+    props.simulation,
+    props.type,
+    sessionState,
+    setSessionChartScale,
+    setSessionChartType,
+    uiState,
+    uuid,
+    matrices,
+    preferences,
+    width,
+    type,
+    onSelect,
+    onUnselect,
+    onFocus,
+    onUnfocus,
+    // onParameterSetChange,
+    setNumLocations,
+  ]);
+  if (layoutResourceMap === null || gridItemChildrenMap === null) {
+    return (
+      <FullScreenBox>
+        <CircularProgress variant={'indeterminate'} />
+      </FullScreenBox>
+    );
   }
 
   return (
     <DesktopComponent
       uuid={uuid}
-      initialLayouts={layouts}
-      resources={resources}
-      gridItemChildrenMap={gridItemChildrenMap}
+      layoutResourceMap={layoutResourceMap}
+      gridItemMap={gridItemChildrenMap}
       backgroundColor={backgroundColor}
     >
       {props.backgroundPanel({

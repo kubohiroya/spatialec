@@ -8,6 +8,9 @@ import { FileDropComponent } from "/app/components/FileDropComponent/FileDropCom
 import { useLocalFileHandler } from "./useLocalFileHandler";
 import { APP_TITLE } from '/app/pages/Home/Constants';
 
+import packageInfo from '../../../../package.json?raw';
+const packageJson = JSON.parse(packageInfo);
+
 export const HomePage = () => {
   const navigate = useNavigate();
   const { handleFiles } = useLocalFileHandler();
@@ -35,7 +38,7 @@ export const HomePage = () => {
       </FileDropComponent>
       <GithubCorner
         style={{ position: 'absolute', top: 0, right: 0 }}
-        href="https://github.com/kubohiroya/racetrack-economy-model"
+        href={packageJson.repository.url}
         size={64}
       />
     </FullScreenBox>

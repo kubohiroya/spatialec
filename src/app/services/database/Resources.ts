@@ -1,38 +1,38 @@
 import Dexie, { DexieError, Table } from 'dexie';
-import { GeoRegionEntity } from '/app/models/geo/GeoRegionEntity';
-import { GeoPointEntity } from '/app/models/geo/GeoPointEntity';
-import { GeoRouteSegmentEntity } from '/app/models/geo/GeoRouteSegmentEntity';
-import { GeoJsonEntity } from '/app/services/database/GeoJsonEntity';
+import { GeoRegionEntity } from '../../../app/models/geo/GeoRegionEntity';
+import { GeoPointEntity } from '../../../app/models/geo/GeoPointEntity';
+import { GeoRouteSegmentEntity } from '../../../app/models/geo/GeoRouteSegmentEntity';
+import { GeoJsonEntity } from '../../../app/services/database/GeoJsonEntity';
 import {
   Feature,
   SIMPLIFY_TOLERANCE, STORE_AS_GEO_JSONS,
   STORE_AS_GEO_REGIONS,
   zoomLevels,
   zoomLevelsExt
-} from '/app/services/database/Constants';
+} from '../../../app/services/database/Constants';
 import {
   GeoDatabaseTableType,
   GeoDatabaseTableTypes
-} from '/app/models/GeoDatabaseTableType';
-import { PROJECT_TABLE_DB_NAME, RESOURCE_TABLE_DB_NAME } from '/app/Constants';
-import { GeoRouteSegmentSource } from '/app/models/geo/GeoRouteSegmentSource';
+} from '../../../app/models/GeoDatabaseTableType';
+import { PROJECT_TABLE_DB_NAME, RESOURCE_TABLE_DB_NAME } from '../../../app/Constants';
+import { GeoRouteSegmentSource } from '../../../app/models/geo/GeoRouteSegmentSource';
 import {
   getTileMortonNumbers,
   getTilesMortonNumbersForAllZoomsMap,
   MAX_ZOOM_LEVEL,
   SpecialMortonNumbers
-} from '/app/utils/mortonNumberUtil';
+} from '../../../app/utils/mortonNumberUtil';
 import * as uuid from 'uuid';
-import { LoaderProgressResponse } from '/app/services/file/FileLoaderResponse';
+import { LoaderProgressResponse } from '../../../app/services/file/FileLoaderResponse';
 import { JSONParser } from '@streamparser/json-whatwg';
 import {
   combinedValueMap,
   Coordinate,
   simplifyPolygons
-} from '/app/utils/simplify';
-import { getPolygonsBounds } from '/app/utils/mapUtil';
+} from '../../../app/utils/simplify';
+import { getPolygonsBounds } from '../../../app/utils/mapUtil';
 import { geojsonToBinary } from '@loaders.gl/gis';
-import { FileLoaderResponseType } from '/app/services/file/FileLoaderResponseType';
+import { FileLoaderResponseType } from '../../../app/services/file/FileLoaderResponseType';
 
 export class Resources extends Dexie {
   public countries: Dexie.Table<GeoRegionEntity, number>;

@@ -1,4 +1,4 @@
-export type LayoutDefault = {
+export type InitialLayoutState = {
   x?: number;
   y?: number;
   w?: number;

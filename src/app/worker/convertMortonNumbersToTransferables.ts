@@ -18,7 +18,7 @@ import {
 } from './convertPolygonsToBuffer';
 import { createIDtoPoint2DMap } from './createIDtoPoint2DMap';
 import { GeoResponseTransferable } from './GeoResponseTransferable';
-import { Resources } from '/app/services/database/Resources';
+import { Resources } from '../../app/services/database/Resources';
 
 export async function convertMortonNumbersToTransferables(
   uuid: string,

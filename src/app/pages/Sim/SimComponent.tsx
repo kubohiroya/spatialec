@@ -78,13 +78,6 @@ export const SimComponent = (props: SimComponentProps) => {
   const preferences = useAtomValue(preferencesAtom);
   const [matrices, setMatrices] = useAtom(matricesAtom);
 
-  useEffect(() => {
-    setUIState((draft) => {
-      draft.viewportCenter = viewportCenter;
-      return draft;
-    });
-  }, [setUIState, viewportCenter]);
-
   //const diagonalMatrixSetPanelRef = useRef<DiagonalMatrixSetPanelHandle>(null);
 
   const resetToCaseDefault = () => {
@@ -144,18 +137,6 @@ export const SimComponent = (props: SimComponentProps) => {
     );
   }
 
-  const simulation = useSimulator({
-    startSimulation,
-    stopSimulation,
-    resetSimulation,
-    tickSimulation,
-  });
-
-  const matrixEngine = useMatrixEngine(
-    sessionState?.locations?.length,
-    sessionState?.edges?.length
-  );
-
   const updateMatrices = (
     locations: City[],
     edges: Edge[],
@@ -183,6 +164,25 @@ export const SimComponent = (props: SimComponentProps) => {
       });
     });
   };
+
+  const simulation = useSimulator({
+    startSimulation,
+    stopSimulation,
+    resetSimulation,
+    tickSimulation,
+  });
+
+  const matrixEngine = useMatrixEngine(
+    sessionState?.locations?.length,
+    sessionState?.edges?.length
+  );
+
+  useEffect(() => {
+    setUIState((draft) => {
+      draft.viewportCenter = viewportCenter;
+      return draft;
+    });
+  }, [setUIState, viewportCenter]);
 
   useEffect(() => {
     updateAndSetMatrices(sessionState?.locations, sessionState?.edges);

@@ -35,12 +35,9 @@ export class Projects extends Dexie {
     this.layoutState = this.table(Projects.layoutState);
   }
 
-  static async saveComponentState(
-    uuid: string,
-    layoutStates: LayoutState[]
-  ) {
+  static async saveLayoutState(uuid: string, layoutStates: LayoutState[]) {
     const componentState = layoutStates.map((l, index) => {
-      return { ...l,  zIndex: index };
+      return { ...l, zIndex: index };
     });
     const db = await Projects.openProject(uuid);
     db.transaction('rw', db.layoutState, async () => {
@@ -49,11 +46,13 @@ export class Projects extends Dexie {
     });
   }
 
-  static async getComponentState(
+  static async getLayoutStates(
     uuid: string
   ): Promise<LayoutState[] | undefined> {
     const db = await Projects.openProject(uuid);
-    return await db.layoutState.toArray();
+    return (await db.layoutState.toArray()).sort((a, b) =>
+      a.zIndex && b.zIndex ? a.zIndex - b.zIndex : 0
+    );
   }
 
   async getLayerPanelState(): Promise<LayerPanelState | undefined> {

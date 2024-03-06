@@ -1,15 +1,18 @@
 /// <reference lib="webworker" />
 
-import { LoaderProgressResponse } from "../services/file/FileLoaderResponse";
-import { FileLoaderRequest } from "../services/file/FileLoaderRequest";
-import { FileLoaderRequestType } from "../services/file/FileLoaderRequestType";
-import { FileLoaderResponseType } from "../services/file/FileLoaderResponseType";
-import { CsvLoaders, IdeGsmCsvLoaders, loadCsvFile } from "../services/idegsm/IdeGsmCsvLoaders";
-import { GeoPointEntity } from "../models/geo/GeoPointEntity";
-import { unzipFileToStream } from "../services/file/UnzipFileToStream";
-import { Projects } from '../services/database/Projects';
-import { convertFileListToFileArray } from "../utils/fileListUtil";
-import { Resources } from '/app/services/database/Resources';
+import { LoaderProgressResponse } from '../services/file/FileLoaderResponse';
+import { FileLoaderRequest } from '../services/file/FileLoaderRequest';
+import { FileLoaderRequestType } from '../services/file/FileLoaderRequestType';
+import { FileLoaderResponseType } from '../services/file/FileLoaderResponseType';
+import {
+  CsvLoaders,
+  IdeGsmCsvLoaders,
+  loadCsvFile,
+} from '../services/idegsm/IdeGsmCsvLoaders';
+import { GeoPointEntity } from '../models/geo/GeoPointEntity';
+import { unzipFileToStream } from '../services/file/UnzipFileToStream';
+import { convertFileListToFileArray } from '../utils/fileListUtil';
+import { Resources } from '../../app/services/database/Resources';
 
 let workerBusy = false;
 
@@ -67,7 +70,7 @@ const finishedCallback = (fileName: string) => {
 export const loadFileList = async (
   db: Resources,
   fileList: FileList,
-  csvLoaders: CsvLoaders,
+  csvLoaders: CsvLoaders
 ) => {
   // loadWorkerStatus = FileLoadingStatus.loading;
 
@@ -92,8 +95,8 @@ export const loadFileList = async (
             errorCallback,
             cancelCallback,
             finishedCallback,
-          }),
-        ),
+          })
+        )
     );
   }
 
@@ -117,7 +120,7 @@ export const loadFileList = async (
           cancelCallback,
           finishedCallback,
         });
-      }),
+      })
   )
     .catch((error) => {
       console.error(error);
@@ -146,7 +149,7 @@ export const loadFileList = async (
           cancelCallback,
           finishedCallback,
         });
-      }),
+      })
   )
     .catch((error) => {
       console.error(error);
@@ -158,7 +161,7 @@ export const loadFileList = async (
 
 // eslint-disable-next-line no-restricted-globals
 self.onmessage = async function fileLoaderWorker(
-  event: MessageEvent<FileLoaderRequest>,
+  event: MessageEvent<FileLoaderRequest>
 ) {
   const payload = event.data;
   switch (payload.type) {
@@ -170,7 +173,7 @@ self.onmessage = async function fileLoaderWorker(
         await loadFileList(
           resource,
           (event.data as any).data as FileList,
-          IdeGsmCsvLoaders,
+          IdeGsmCsvLoaders
         );
         workerBusy = false;
       }

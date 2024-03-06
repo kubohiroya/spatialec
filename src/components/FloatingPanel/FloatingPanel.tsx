@@ -43,8 +43,7 @@ type FloatingPanelProps = {
   setToFront: () => void;
   onClose?: () => void;
   maximized?: boolean;
-  onMaximize?: () => void;
-  onDemaximize?: () => void;
+  onMaximize?: (maximize: boolean) => void;
 } & ComponentProps<'div'>;
 
 const MiniWindowControlButton = styled(IconButton)`
@@ -83,32 +82,31 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(
       onClose,
       maximized,
       onMaximize,
-      onDemaximize,
       titleBarMode,
     }: FloatingPanelProps,
-    ref,
+    ref
   ) => {
     const hideMe = () => {
       onClose && onClose();
     };
     const maximizeMe = () => {
-      onMaximize && onMaximize();
+      onMaximize && onMaximize(true);
     };
     const demaximizeMe = () => {
-      onDemaximize && onDemaximize();
+      onMaximize && onMaximize(false);
     };
 
     const iconSize = 26;
     const titleBarMarginRight = iconSize * (titleBarMode === 'win' ? 2 : 0);
 
-    if (! shown) return null;
+    if (!shown) return null;
 
     return (
       <FloatingCard
         id={id}
         ref={ref}
         key={key}
-        style={{ ...style}}
+        style={{ ...style }}
         onMouseDown={(ev: MouseEvent) => {
           const rect = document.getElementById(id)!.getBoundingClientRect();
           if (
@@ -219,14 +217,16 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(
           }}
           titleTypographyProps={{ fontSize: '16px' }}
         ></CardHeader>
-        <Box style={{
-          overflow: 'auto',
-          height: '90%'
-        }}>
+        <Box
+          style={{
+            overflow: 'auto',
+            height: '90%',
+          }}
+        >
           {children}
         </Box>
         <CardActions></CardActions>
       </FloatingCard>
     );
-  },
+  }
 );

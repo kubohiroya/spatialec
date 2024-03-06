@@ -1,24 +1,33 @@
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { Box, CardContent, CircularProgress } from '@mui/material';
+import { Box, CardContent } from '@mui/material';
 import styled from '@emotion/styled';
-import { useNavigate } from 'react-router-dom';
-import ReactGridLayout, {
+import {
   ItemCallback,
   Responsive as ResponsiveGridLayout,
 } from 'react-grid-layout';
 import { useWindowDimensions } from '/app/hooks/useWindowDimenstions';
 import { FloatingItemResource } from '/app/models/FloatingItemResource';
-import { entriesToRecord } from '/app/utils/arrayUtil';
 import { FloatingButton } from '/components/FloatingButton/FloatingButton';
 import { FloatingPanel } from '/components/FloatingPanel/FloatingPanel';
 import { FloatingButtonResource } from '/app/models/FloatingButtonResource';
 import { FloatingPanelResource } from '/app/models/FloatingPanelResource';
 import { NUM_HORIZONTAL_GRIDS, ROW_HEIGHT } from './DesktopConstants';
 import { Projects } from '/app/services/database/Projects';
-import { ComponentState } from '/app/pages/Sim/ComponentState';
 import { LayoutState } from '/app/pages/Sim/LayoutState';
+import { useNavigate } from 'react-router-dom';
+import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
+import { FloatingButtonItem } from '/app/models/FloatingButtonItem';
+import { CircularProgressBox } from '/components/CircularProgressBox/CircularProgressBox';
+import { AsyncFunctionManager } from '/app/utils/AsyncFunctionManager';
+import { ComponentState } from '/app/pages/Sim/ComponentState';
 
 const FloatingPanelContent = styled(CardContent)`
   padding: 8px;
@@ -26,19 +35,24 @@ const FloatingPanelContent = styled(CardContent)`
   overflow: hidden;
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+const asyncFunctionManager = new AsyncFunctionManager();
+
 const StyledResponsiveGridLayout = styled(ResponsiveGridLayout)`
   .react-grid-item.react-grid-placeholder {
     background: grey !important;
   }
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
 `;
 
 export type DesktopComponentProps = {
   uuid: string;
   backgroundColor: string;
-  initialLayouts: LayoutState[];
-  resources: Record<string, FloatingPanelResource | FloatingButtonResource>;
-  gridItemChildrenMap: Record<string, ReactNode>;
+  layoutResourceMap: Record<string, FloatingPanelItem | FloatingButtonItem>;
+  gridItemMap: Record<string, ReactNode>;
   children?: ReactNode;
 };
 
@@ -46,177 +60,229 @@ export const DesktopComponent = (props: DesktopComponentProps) => {
   const navigate = useNavigate();
   const { width, height } = useWindowDimensions();
 
-  const [layoutStates, setLayoutStates] = useState<LayoutState[]>([]);
-
-  const [layoutStateMap, setLayoutStateMap] = useState<
-    Record<string, LayoutState>
-  >({});
+  const [layoutStateMap, setLayoutStateMap] = useState<Record<
+    string,
+    LayoutState
+  > | null>(null);
 
   const [gridItemMap, setGridItemMap] = useState<Record<
     string,
     ReactNode
   > | null>(null);
 
-  const createForefrontLayoutStates = useCallback((
-    id: string,
-    _layouts: LayoutState[],
-    changes?: Partial<LayoutState>,
-  ) => {
-    const index = _layouts.findIndex((layout) => layout.i === id);
-    if (index < 0) return _layouts;
-    const target = _layouts[index];
-    const newLayouts = new Array<LayoutState>(_layouts.length);
-    for (let i = 0; i < index; i++) {
-      newLayouts[i] = _layouts[i];
-    }
-    for (let i = index; i < _layouts.length - 1; i++) {
-      newLayouts[i] = _layouts[i + 1];
-    }
-    newLayouts[_layouts.length - 1] = {...target, ...changes};
-    return newLayouts;
-  }, []);
+  const onLayoutChange = useCallback(
+    (
+      currentLayout: ReactGridLayout.Layout[],
+      allLayouts: ReactGridLayout.Layouts
+    ) => {
+      console.log('onLayoutChange');
+    },
+    []
+  );
 
-  const createMaximumLayout = useCallback((draft: ReactGridLayout.Layout) => {
-    return {
-      ...draft,
-      x: 0,
-      y: 0,
-      w: NUM_HORIZONTAL_GRIDS,
-      h: Math.floor((height - 10) / ROW_HEIGHT - 3),
-    };
-  }, [height]);
-
-  const createLayouts = useCallback((layouts: ReactGridLayout.Layout[], layoutStateMap: Record<string, ComponentState>) => {
-    return layouts.map((layout, index) => {
-      if (layoutStateMap[layout.i]?.maximized) {
-        return createMaximumLayout(layout);
-      } else {
-        return layout;
+  const createForefrontLayoutStatesMap = useCallback(
+    (
+      layoutStateMap: Record<string, LayoutState> | null,
+      id: string,
+      changes?: Partial<LayoutState>
+    ) => {
+      if (layoutStateMap === null) return null;
+      const targetZIndex = layoutStateMap[id]?.zIndex;
+      if (!targetZIndex || targetZIndex < 0) {
+        console.error({ layoutStatesMap: layoutStateMap });
+        throw new Error();
       }
-    });
-  }, [createMaximumLayout]);
 
-  const onShow = useCallback((panelId: string) => {
-    const buttonId = (
-      layoutStateMap[panelId] as unknown as FloatingPanelResource
-    ).bindToButtonId;
-    buttonId && setLayoutStateMap((draft: Record<string, LayoutState>) => ({
-      ...draft,
-      [panelId]: { ...draft[panelId], shown: true },
-      [buttonId]: { ...draft[buttonId], enabled: false }
-    }));
-  }, [layoutStateMap]);
+      const newLayoutStateMap: Record<string, LayoutState> = {};
 
-  const onHide = useCallback((panelId: string) =>{
-    const buttonId = (
-      layoutStateMap[panelId] as unknown as FloatingPanelResource
-    ).bindToButtonId;
-    buttonId && setLayoutStateMap((draft: Record<string, LayoutState>) => ({
-      ...draft,
-      [panelId]: { ...draft[panelId], shown: false },
-      [buttonId]: { ...draft[buttonId], enabled: true },
-    }));
-  }, [layoutStateMap]);
+      for (const layoutsMapKey in layoutStateMap) {
+        const value = layoutStateMap[layoutsMapKey];
+        if (value.zIndex === targetZIndex) {
+          newLayoutStateMap[layoutsMapKey] = {
+            ...value,
+            zIndex: Object.keys(layoutStateMap).length - 1,
+            ...changes,
+          };
+        } else if (value.zIndex !== undefined && value.zIndex > targetZIndex) {
+          newLayoutStateMap[layoutsMapKey] = {
+            ...value,
+            zIndex: value.zIndex - 1,
+          };
+        } else {
+          newLayoutStateMap[layoutsMapKey] = value;
+        }
+      }
+      return newLayoutStateMap;
+    },
+    []
+  );
 
-  const onForefront = useCallback((id: string) => {
-    setLayoutStates(createForefrontLayoutStates(id, layoutStates));
-  }, [createForefrontLayoutStates, layoutStates]);
+  const createLayoutStates = useCallback(
+    (layoutStateMap: Record<string, LayoutState> | null, height: number) => {
+      if (layoutStateMap === null) return;
+      return Object.keys(layoutStateMap)
+        .map((id) => {
+          const layout = layoutStateMap[id];
+          if (layoutStateMap[id]?.maximized) {
+            return {
+              ...layoutStateMap[id],
+              x: 0,
+              y: 0,
+              w: NUM_HORIZONTAL_GRIDS,
+              h: Math.floor((height - 10) / ROW_HEIGHT - 3),
+            };
+          } else {
+            return layout;
+          }
+        })
+        .sort((a, b) => {
+          if (a.zIndex && b.zIndex) {
+            return a.zIndex - b.zIndex;
+          } else {
+            return 0;
+          }
+        });
+    },
+    []
+  );
 
-  const onMaximize = useCallback((id: string) => {
-    setLayoutStates(createForefrontLayoutStates(id, layoutStates, {maximized: true }));
-  }, [createForefrontLayoutStates, layoutStates]);
+  const onLayoutStateMapChange = useCallback(
+    (layoutStateMap: Record<string, LayoutState> | null) => {
+      if (layoutStateMap === null) return;
+      Projects.saveLayoutState(props.uuid, Object.values(layoutStateMap));
+      update(layoutStateMap);
+    },
+    [props.uuid]
+  );
 
-  const onDemaximize = useCallback((id: string) => {
-    setLayoutStates(createForefrontLayoutStates(id, layoutStates, {maximized: false }));
-  }, [createForefrontLayoutStates, layoutStates]);
+  const onResizeStop: ItemCallback = useCallback(
+    (current, oldItem, newItem, placeholder, e, element) => {
+      onLayoutStateMapChange(
+        createForefrontLayoutStatesMap(layoutStateMap, newItem.i)
+      );
+    },
+    [createForefrontLayoutStatesMap, layoutStateMap, onLayoutStateMapChange]
+  );
 
-  const onResizeStop: ItemCallback = useCallback((
-    current,
-    oldItem,
-    newItem,
-    placeholder,
-    e,
-    element
-  ) => {
-    const newLayouts = createForefrontLayoutStates(newItem.i, current as LayoutState[]);
-    setLayoutStates(newLayouts);
-  }, [createForefrontLayoutStates]);
+  const onDragStop: ItemCallback = useCallback(
+    (current, oldItem, newItem, placeholder, e, element) => {
+      onLayoutStateMapChange(
+        createForefrontLayoutStatesMap(layoutStateMap, newItem.i)
+      );
+    },
+    [createForefrontLayoutStatesMap, layoutStateMap, onLayoutStateMapChange]
+  );
 
-  const onDragStop: ItemCallback = useCallback((
-    current,
-    oldItem,
-    newItem,
-    placeholder,
-    e,
-    element
-  ) => {
-    const newLayouts = createForefrontLayoutStates(newItem.i, current as LayoutState[]);
-    setLayoutStates(newLayouts);
-  }, [createForefrontLayoutStates])
+  const onForefront = useCallback(
+    (layoutStateMap: Record<string, LayoutState> | null, panelId: string) => {
+      const newLayoutStateMap = createForefrontLayoutStatesMap(
+        layoutStateMap,
+        panelId
+      );
+      console.log('onForefront', panelId);
+      onLayoutStateMapChange(newLayoutStateMap);
+    },
+    [createForefrontLayoutStatesMap, onLayoutStateMapChange]
+  );
 
-  const onLayoutChange = useCallback((current: ReactGridLayout.Layout[]) => {
-    if (current.length === 0) return;
-    console.log('⭐️onLayoutChange', {
-      layoutStates,
-      layoutStateMap,
-    });
-    Projects.saveComponentState(props.uuid, layoutStates.map((layout, index) => {
-      return {...layoutStateMap[layout.i], ...layout}
-    }))
-  }, [layoutStateMap, layoutStates, props.uuid]);
+  const onShow = useCallback(
+    (
+      layoutStateMap: Record<string, LayoutState> | null,
+      panelId: string,
+      buttonId: string,
+      newValue: boolean
+    ) => {
+      if (layoutStateMap === null) return;
+      const newLayoutStateMap = {
+        ...layoutStateMap,
+        [panelId]: { ...layoutStateMap[panelId], shown: newValue },
+        [buttonId]: { ...layoutStateMap[buttonId], enabled: !newValue },
+      };
+      console.log('onClose', panelId, buttonId, newLayoutStateMap);
+      onLayoutStateMapChange(
+        createForefrontLayoutStatesMap(newLayoutStateMap, panelId)
+      );
+    },
+    [createForefrontLayoutStatesMap, onLayoutStateMapChange]
+  );
 
-  useEffect(() => {
+  const onMaximize = useCallback(
+    (
+      layoutStateMap: Record<string, LayoutState> | null,
+      panelId: string,
+      maximized: boolean
+    ) => {
+      const newLayoutStateMap = createForefrontLayoutStatesMap(
+        layoutStateMap,
+        panelId,
+        { maximized }
+      );
+      console.log('onMaximize', panelId, newLayoutStateMap);
+      onLayoutStateMapChange(newLayoutStateMap);
+    },
+    [createForefrontLayoutStatesMap, onLayoutStateMapChange]
+  );
 
-    const createGridItem = (
+  const createGridItem = useCallback(
+    (
+      layoutStateMap: Record<string, LayoutState> | null,
       id: string,
       resource: FloatingItemResource,
       children: ReactNode
     ) => {
-      if (!resource) return null;
-
+      if (!layoutStateMap || !resource) return null;
       switch (resource.type) {
         case 'FloatingButton': {
-          const itemResource = resource as FloatingButtonResource;
+          const buttonResource = resource as FloatingButtonResource;
           return (
             <FloatingButton
               id={id}
               key={id}
-              tooltip={resource.tooltip!}
+              tooltip={buttonResource.tooltip ?? ''}
               onClick={() => {
-                if (itemResource.bindToPanelId) {
-                  onShow(itemResource.bindToPanelId);
-                  onForefront(itemResource.bindToPanelId);
-                } else if (itemResource.onClick) {
-                  itemResource.onClick();
-                } else if (itemResource.navigateTo) {
-                  navigate(itemResource.navigateTo);
+                if (buttonResource.bindToPanelId) {
+                  onShow(
+                    layoutStateMap,
+                    buttonResource.bindToPanelId,
+                    id,
+                    true
+                  );
+                } else if (buttonResource.onClick) {
+                  buttonResource.onClick();
+                } else if (buttonResource.navigateTo) {
+                  navigate(buttonResource.navigateTo);
                 }
               }}
               disabled={!(layoutStateMap[id]?.enabled || false)}
             >
-              {resource.icon}
+              {buttonResource.icon}
             </FloatingButton>
           );
         }
         case 'FloatingPanel': {
+          const panelResource = resource as FloatingPanelResource;
           return (
             <FloatingPanel
               id={id}
               key={id}
-              shown={layoutStates.some((layout) => layoutStateMap[id]?.shown)}
-              title={resource.title!}
-              icon={resource.icon}
-              setToFront={() => onForefront(id)}
-              rowHeight={resource.rowHeight!}
-              titleBarMode={resource.titleBarMode!}
+              shown={layoutStateMap[id]?.shown}
+              title={panelResource.title ?? ''}
+              icon={panelResource.icon}
+              setToFront={() => onForefront(layoutStateMap, id)}
+              rowHeight={panelResource.rowHeight ?? 0}
+              titleBarMode={panelResource.titleBarMode ?? 'win'}
               onClose={() => {
-                onHide(resource.id);
+                if (panelResource.bindToButtonId) {
+                  onShow(
+                    layoutStateMap,
+                    id,
+                    panelResource.bindToButtonId,
+                    false
+                  );
+                }
               }}
-              onMaximize={() => {
-                onMaximize(id);
-              }}
-              onDemaximize={() => {
-                onDemaximize(id);
+              onMaximize={(maximize: boolean) => {
+                onMaximize(layoutStateMap, id, maximize);
               }}
               maximized={layoutStateMap[id]?.maximized}
             >
@@ -224,63 +290,97 @@ export const DesktopComponent = (props: DesktopComponentProps) => {
             </FloatingPanel>
           );
         }
-        case 'BackgroundPanel':
         default:
-          return <div id={id} key={id}></div>;
+          throw new Error(resource.type);
       }
-    };
+    },
+    [navigate, onForefront, onMaximize, onShow]
+  );
 
-    if (layoutStates.length > 0) {
+  const update = useCallback(
+    (
+      layoutStateMap: Record<string, ReactGridLayout.Layout & ComponentState>
+    ) => {
+      setLayoutStateMap(layoutStateMap);
       setGridItemMap(
-        entriesToRecord(
-          layoutStates.map((layout) => {
-            return [
-              layout.i,
-              createGridItem(
-                layout.i,
-                props.resources[layout.i],
-                props.gridItemChildrenMap[layout.i]
-              ),
-            ];
-          })
-        )
+        Object.keys(layoutStateMap).reduce((acc, id) => {
+          acc[id] = createGridItem(
+            layoutStateMap,
+            id,
+            props.layoutResourceMap[id].resource,
+            props.gridItemMap[id]
+          );
+          return acc;
+        }, {} as Record<string, ReactNode>)
       );
+    },
+    [
+      navigate,
+      onForefront,
+      onMaximize,
+      onShow,
+      props.gridItemMap,
+      props.layoutResourceMap,
+    ]
+  );
+
+  const initialize = useCallback(async () => {
+    console.log('init 0');
+    const storedLayouts: LayoutState[] | undefined =
+      await Projects.getLayoutStates(props.uuid);
+    if (!storedLayouts) {
+      console.log('init -');
+      return;
     }
-  }, [layoutStateMap, layoutStates, navigate, onDemaximize, onForefront, onHide, onMaximize, onShow, props.gridItemChildrenMap, props.resources]);
+    console.log('init 1');
+    const layoutStateMap =
+      storedLayouts.length === 0
+        ? Object.keys(props.layoutResourceMap).reduce((acc, key) => {
+            acc[key] = props.layoutResourceMap[key].layout;
+            return acc;
+          }, {} as Record<string, LayoutState>)
+        : storedLayouts.reduce((acc, layout) => {
+            acc[layout.i as string] = layout;
+            return acc;
+          }, {} as Record<string, LayoutState>);
+    console.log('init 2');
+    update(layoutStateMap);
+    console.log('init 3');
+  }, [props.layoutResourceMap, props.uuid, update]);
 
   useEffect(() => {
-    (async () => {
+    asyncFunctionManager.runAsyncFunction(async () => {
+      console.log('init start');
+      await initialize();
+      console.log('init done');
+    });
+  }, [initialize]);
 
-      const db = await Projects.openProject(props.uuid);
-      let layoutStates: LayoutState[] = (await db.layoutState.toArray()).sort((a, b)=> a.zIndex && b.zIndex ? a.zIndex - b.zIndex : 0);
-      if (layoutStates.length === 0){
-        layoutStates = props.initialLayouts.map((initialLayout, index) => {
-          if (
-            initialLayout.x &&
-            initialLayout.x! < 0
-          ) {
-            initialLayout.x = NUM_HORIZONTAL_GRIDS + initialLayout.x!;
-          }
-          if (
-            initialLayout.y &&
-            initialLayout.y! < 0
-          ) {
-            const rows = Math.floor((height - 100) / ROW_HEIGHT); //getRows(height);
-            initialLayout.y = rows + initialLayout.y!;
-          }
-          return {...initialLayout, ...layoutStates, zIndex: index};
-        });
-      }
-      setLayoutStates(layoutStates);
+  const gridItems = useMemo(() => {
+    if (layoutStateMap === null || gridItemMap === null) return;
+    return Object.values(layoutStateMap)
+      .sort((a, b) => {
+        if (a.zIndex && b.zIndex) {
+          return a.zIndex - b.zIndex;
+        } else {
+          return 0;
+        }
+      })
+      .map((value) => gridItemMap[value.i]);
+  }, [gridItemMap, layoutStateMap]);
 
-      const layoutMap = layoutStates.reduce((acc, layout) => {
-        acc[layout.i as string] = layout;
-        return acc;
-      }, {} as Record<string, LayoutState>);
-      setLayoutStateMap(layoutMap);
+  const lg = useMemo(() => {
+    return createLayoutStates(layoutStateMap, height);
+  }, [createLayoutStates, height, layoutStateMap]);
 
-    })();
-  }, [width, height, props.initialLayouts, props.resources, props.uuid]);
+  console.log(
+    '*',
+    width === 0 ||
+      !lg ||
+      !gridItems ||
+      lg.length === 0 ||
+      gridItems?.length === 0
+  );
 
   return (
     <Box
@@ -291,55 +391,49 @@ export const DesktopComponent = (props: DesktopComponentProps) => {
         overflow: 'hidden',
       }}
     >
-      {width === 0 || layoutStates.length === 0 || gridItemMap === null ? (
-        <Box
-          sx={{
-            display: 'flex',
-            width: '100vw',
-            height: '100vh',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: '#ccc',
-          }}
-        >
-          <CircularProgress variant={'indeterminate'} size={100} />
-        </Box>
+      {width === 0 ||
+      !lg ||
+      !gridItems ||
+      lg.length === 0 ||
+      gridItems?.length === 0 ? (
+        <CircularProgressBox />
       ) : (
-        <StyledResponsiveGridLayout
-          style={{
-            backgroundColor: props.backgroundColor,
-            margin: 0,
-            padding: 0,
-          }}
-          compactType={'vertical'}
-          autoSize={true}
-          allowOverlap={true}
-          isResizable={false}
-          isBounded={false}
-          width={width}
-          draggableHandle=".draggable"
-          breakpoints={{ lg: 1140 }}
-          cols={{ lg: NUM_HORIZONTAL_GRIDS }}
-          rowHeight={ROW_HEIGHT}
-          margin={[4, 4]}
-          containerPadding={[8, 2]}
-          layouts={{
-            lg: createLayouts(layoutStates, layoutStateMap),
-          }}
-          onLayoutChange={onLayoutChange}
-          onDragStop={onDragStop}
-          onResizeStop={onResizeStop}
-        >
+        <>
           <Box
-            sx={{ position: 'absolute', top: '-2px', left: '-8px' }}
+            sx={{
+              position: 'absolute',
+              height: '100vh',
+            }}
             key={'BackgroundPanel'}
           >
             {props.children}
           </Box>
-          {layoutStates
-            .filter((layoutState) => layoutState.i !== 'BackgroundPanel')
-            .map((layoutState, index) => gridItemMap[layoutState.i])}
-        </StyledResponsiveGridLayout>
+          <StyledResponsiveGridLayout
+            style={{
+              backgroundColor: props.backgroundColor,
+            }}
+            compactType={'vertical'}
+            autoSize={true}
+            allowOverlap={true}
+            isResizable={false}
+            isBounded={false}
+            width={width}
+            draggableHandle=".draggable"
+            breakpoints={{ lg: 1140 }}
+            cols={{ lg: NUM_HORIZONTAL_GRIDS }}
+            rowHeight={ROW_HEIGHT}
+            margin={[4, 4]}
+            containerPadding={[8, 2]}
+            onLayoutChange={onLayoutChange}
+            onDragStop={onDragStop}
+            onResizeStop={onResizeStop}
+            layouts={{
+              lg,
+            }}
+          >
+            {gridItems}
+          </StyledResponsiveGridLayout>
+        </>
       )}
     </Box>
   );

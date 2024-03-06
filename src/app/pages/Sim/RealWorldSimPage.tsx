@@ -13,9 +13,9 @@ import { ProjectTypes } from '/app/models/ProjectType';
 import { SimLoaderResult } from './SimLoader';
 
 export const RealWorldSimPage = () => {
-  const { uuid, project, zoom, y, x, type } = useLoaderData() as SimLoaderResult;
+  const { uuid, project, zoom, y, x, type } =
+    useLoaderData() as SimLoaderResult;
   const { width, height } = useWindowDimensions();
-
 
   return (
     <SimComponent
@@ -39,7 +39,7 @@ export const RealWorldSimPage = () => {
         onPointerUp: (x: number, y: number, index: number) => void;
         onClearSelection: () => void;
         overrideViewportCenter: (
-          viewportCenter: [number, number, number],
+          viewportCenter: [number, number, number]
         ) => void;
         onMoved: ({
           zoom,
@@ -60,7 +60,12 @@ export const RealWorldSimPage = () => {
           zoom: number;
         }) => void;
       }) => (
-        <MapComponent uuid={uuid} project={project} width={width} height={height}>
+        <MapComponent
+          uuid={uuid}
+          project={project}
+          width={width}
+          height={height}
+        >
           <MapCopyright />
         </MapComponent>
       )}
