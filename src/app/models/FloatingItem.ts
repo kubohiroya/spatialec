@@ -1,5 +1,5 @@
-import { LayoutState } from '/app/pages/Sim/LayoutState';
+import { ItemState } from '/app/pages/Sim/ItemState';
 
 export type FloatingItem = {
-  layout: LayoutState;
+  itemState: ItemState;
 };

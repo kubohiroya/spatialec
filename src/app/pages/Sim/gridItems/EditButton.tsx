@@ -1,18 +1,15 @@
 import { GridItemTypes } from '/app/models/GridItemType';
-import { Edit } from '@mui/icons-material';
 import React from 'react';
 import { FloatingButtonItem } from '/app/models/FloatingButtonItem';
+import { Edit } from '@mui/icons-material';
 
 export const EditButton: FloatingButtonItem = {
-  layout: {
+  itemState: {
     i: 'EditButton',
     x: 0,
-    y: 2,
-    w: 1,
-    h: 1,
-    resizeHandles: [],
-    isDraggable: true,
-    isResizable: false,
+    y: 48,
+    w: 28,
+    h: 24,
     shown: true,
     enabled: false,
     maximized: false,

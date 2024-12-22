@@ -1,18 +1,16 @@
 import { GridItemTypes } from '/app/models/GridItemType';
 import { Info } from '@mui/icons-material';
+
 import React from 'react';
 import { FloatingButtonItem } from '/app/models/FloatingButtonItem';
 
 export const InfoButton: FloatingButtonItem = {
-  layout: {
+  itemState: {
     i: 'InfoButton',
     x: 0,
-    y: 10,
-    w: 1,
-    h: 1,
-    resizeHandles: [],
-    isDraggable: true,
-    isResizable: false,
+    y: 240,
+    w: 24,
+    h: 24,
     shown: true,
     enabled: false,
     maximized: false,

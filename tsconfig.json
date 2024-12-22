@@ -12,8 +12,9 @@
     "module": "esnext",
     "lib": [
       "es2020",
-      "dom"
+      "dom",
     ],
+    "typeRoots": ["node_modules/@types", "./types"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
@@ -33,11 +34,14 @@
     "jsxImportSource": "@emotion/react",
     "types": [
       "vite/client",
-      "vitest"
+      "vitest",
+      "jest",
+      "node",
     ]
   },
   "types": [
-    "node"
+    "node",
+    "jest"
   ],
   "files": [],
   "include": [

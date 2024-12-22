@@ -1,22 +1,16 @@
 import { GridItemTypes } from '/app/models/GridItemType';
-import { Timer } from '@mui/icons-material';
-import React from 'react';
+//import { Timer } from '@mui/icons-material';
+// @ts-ignore
+import Timer from '~icons/mdi/timer?raw';
 import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
-import { RESIZE_HANDLES } from '/app/pages/Sim/gridItems/Constants';
-import { ROW_HEIGHT } from '/app/pages/Sim/DesktopConstants';
 
 export const TimerControlPanel: FloatingPanelItem = {
-  layout: {
+  itemState: {
     i: 'TimerControlPanel',
-    x: 1,
-    y: 9,
-    w: 8,
-    h: 4,
-    minW: 8,
-    minH: 4,
-    isDraggable: true,
-    isResizable: true,
-    resizeHandles: RESIZE_HANDLES,
+    x: 24,
+    y: 216,
+    w: 360,
+    h: 140,
     shown: true,
     enabled: true,
     maximized: false,
@@ -25,9 +19,7 @@ export const TimerControlPanel: FloatingPanelItem = {
     id: 'TimerControlPanel',
     type: GridItemTypes.FloatingPanel,
     title: 'Timer Control',
-    icon: <Timer />,
-    titleBarMode: 'win',
-    rowHeight: ROW_HEIGHT,
+    icon: Timer,
     bindToButtonId: 'TimerControlButton',
   },
 };

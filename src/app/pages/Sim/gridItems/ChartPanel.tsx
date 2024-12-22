@@ -1,21 +1,16 @@
 import { GridItemTypes } from '/app/models/GridItemType';
-import { BarChart } from '@mui/icons-material';
-import React from 'react';
 
 import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
-import { ROW_HEIGHT } from '/app/pages/Sim/DesktopConstants';
-import { RESIZE_HANDLES } from '/app/pages/Sim/gridItems/Constants';
+// @ts-ignore
+import BarChart from '~icons/mdi/bar-chart.svg?raw';
 
 export const ChartPanel: FloatingPanelItem = {
-  layout: {
+  itemState: {
     i: 'ChartPanel',
-    x: 22,
+    x: 420,
     y: 0,
-    w: 10,
-    h: 10,
-    isDraggable: true,
-    isResizable: true,
-    resizeHandles: RESIZE_HANDLES,
+    w: 380,
+    h: 300,
     enabled: true,
     shown: true,
     maximized: false,
@@ -24,9 +19,7 @@ export const ChartPanel: FloatingPanelItem = {
     id: 'ChartPanel',
     type: GridItemTypes.FloatingPanel,
     title: 'Chart',
-    icon: <BarChart />,
-    titleBarMode: 'win',
-    rowHeight: ROW_HEIGHT,
+    icon: BarChart,
     bindToButtonId: 'ChartButton',
   },
 };

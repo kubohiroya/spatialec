@@ -10,8 +10,6 @@ import { LoaderProgressResponse } from '/app/services/file/FileLoaderResponse';
 import { LoadingProgress } from '/app/services/file/LoadingProgress';
 import { FileLoadingStatusTypes } from '/app/services/file/FileLoadingStatusType';
 import { createGADM41JsonUrl } from './CreateGADM41JsonUrl';
-import { GeoDatabaseTableTypes } from '/app/models/GeoDatabaseTableType';
-import { Projects } from '/app/services/database/Projects';
 import { ResourceItem } from '/app/models/ResourceItem';
 
 import { ResourceTable } from '/app/services/database/ResourceTable';
@@ -27,20 +25,25 @@ export function useDownloadGADMJsonFiles() {
     countryMetadataList: GADMGeoJsonCountryMetadata[],
     selectedCheckboxMatrix: boolean[][],
     urlList: string[],
-    onFinish: () => void,
+    onFinish: () => void
   ): Promise<string> {
     const downloadingItems = findDownloadingItems(
       countryMetadataList,
-      selectedCheckboxMatrix,
+      selectedCheckboxMatrix
     );
 
     const uuid = uuid_v4();
 
     const gadmGeoJsonResourceEntity = await ResourceTable.getResourcesByType(
-      ResourceTypes.gadmGeoJSON,
+      ResourceTypes.gadmGeoJSON
     );
 
-    const name = generateNewName(gadmGeoJsonResourceEntity.map(gadmGeoJsonResourceEntity => gadmGeoJsonResourceEntity.name), 'GADM GeoJSON #');
+    const name = generateNewName(
+      gadmGeoJsonResourceEntity.map(
+        (gadmGeoJsonResourceEntity) => gadmGeoJsonResourceEntity.name
+      ),
+      'GADM GeoJSON #'
+    );
 
     await ResourceTable.createGADMGeoJsonResourceEntity({
       uuid,
@@ -49,9 +52,7 @@ export function useDownloadGADMJsonFiles() {
       items: downloadingItems,
     });
 
-    const db = await Resources.openResource(
-      uuid,
-    );
+    const db = await Resources.openResource(uuid);
 
     requestIdleCallback(async () => {
       await fetchFiles({
@@ -63,7 +64,7 @@ export function useDownloadGADMJsonFiles() {
                 ...draft,
                 [url]: urlStatus,
               };
-            },
+            }
           );
         },
 
@@ -93,7 +94,7 @@ export function useDownloadGADMJsonFiles() {
             },
           });
 
-          db.storeGadmGeoJson({
+          await db.storeGadmGeoJson({
             stream,
             fileName: url,
             fileSize: undefined,
@@ -128,7 +129,7 @@ export function useDownloadGADMJsonFiles() {
 
 export function findDownloadingItems(
   countryMetadataList: GADMGeoJsonCountryMetadata[],
-  selectedCheckboxMatrix: boolean[][],
+  selectedCheckboxMatrix: boolean[][]
 ): ResourceItem[] {
   const downloadingItems: ResourceItem[] = [];
 

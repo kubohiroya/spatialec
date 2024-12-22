@@ -1,22 +1,15 @@
 import { GridItemTypes } from '/app/models/GridItemType';
-import { FolderOpen } from '@mui/icons-material';
-import React from 'react';
+//import { FolderOpen } from '@mui/icons-material';
+import FolderOpen from '~icons/mdi/folder-open?raw';
 import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
-import { ROW_HEIGHT } from '/app/pages/Sim/DesktopConstants';
-import { RESIZE_HANDLES } from '/app/pages/Sim/gridItems/Constants';
 
 export const InputOutputPanel: FloatingPanelItem = {
-  layout: {
+  itemState: {
     i: 'InputOutputPanel',
-    x: 1,
+    x: 24,
     y: 0,
-    w: 8,
-    h: 3,
-    minW: 8,
-    minH: 3,
-    resizeHandles: RESIZE_HANDLES,
-    isDraggable: true,
-    isResizable: true,
+    w: 218,
+    h: 90,
     shown: true,
     enabled: true,
     maximized: false,
@@ -25,9 +18,7 @@ export const InputOutputPanel: FloatingPanelItem = {
     id: 'InputOutputPanel',
     type: GridItemTypes.FloatingPanel,
     title: 'Input/Output',
-    icon: <FolderOpen />,
-    titleBarMode: 'win',
-    rowHeight: ROW_HEIGHT,
+    icon: FolderOpen,
     bindToButtonId: 'InputOutputButton',
   },
 };

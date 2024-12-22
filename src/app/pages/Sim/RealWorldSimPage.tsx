@@ -1,6 +1,4 @@
 import React from 'react';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
 import { MapComponent } from '../../components/SessionPanel/MapPanel/deckgl/MapComponent';
 import { useLoaderData } from 'react-router-dom';
 import { useWindowDimensions } from '/app/hooks/useWindowDimenstions';

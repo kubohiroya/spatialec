@@ -22,7 +22,6 @@ import { ProjectTypes } from '/app/models/ProjectType';
 import { sessionStateAtom } from './SimLoader';
 import { useUndoRedo } from '/app/hooks/useUndoRedo';
 import { AsyncFunctionManager } from '/app/utils/AsyncFunctionManager';
-import { NUM_HORIZONTAL_GRIDS, ROW_HEIGHT } from './DesktopConstants';
 import { ProjectTable } from '/app/services/database/ProjectTable';
 import { CircularProgress } from '@mui/material';
 import { FullScreenBox } from '/components/FullScreenBox/FullScreenBox';
@@ -64,26 +63,6 @@ import { mergeDeep } from '/app/utils/marge';
 import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
 import { FloatingButtonItem } from '/app/models/FloatingButtonItem';
 import { FloatingButtonResource } from '/app/models/FloatingButtonResource';
-
-const getRows = (height: number) =>
-  height && height > 0 ? Math.floor(height / ROW_HEIGHT) - 3 : 0;
-const getX = (x: number) => {
-  if (x >= 0) {
-    return x;
-  } else {
-    return NUM_HORIZONTAL_GRIDS + x;
-  }
-};
-const getY = (y: number, height: number) => {
-  const rows = getRows(height);
-  if (y < 0) {
-    return rows + y;
-  } else if (y >= 0 && y <= rows) {
-    return y;
-  } else {
-    return rows - 1;
-  }
-};
 
 type SimDesktopComponentProps = {
   type: ProjectTypes;
@@ -318,19 +297,23 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
 
     if (type === ProjectTypes.Graph) {
       layoutResourceMap = mergeDeep(layoutResourceMap, {
-        ParametersPanel: { resource: { x: 1, y: 0, w: 8, h: 4, shown: true } },
-        InputOutputPanel: { resource: { x: 1, y: 13, shown: true } },
-        EditPanel: { resource: { x: 10, y: 0, shown: true } },
+        ParametersPanel: {
+          resource: { x: 24, y: 0, w: 192, h: 96, shown: true },
+        },
+        InputOutputPanel: { resource: { x: 24, y: 312, shown: true } },
+        EditPanel: { resource: { x: 240, y: 0, shown: true } },
       });
     } else if (type === ProjectTypes.RealWorld) {
       layoutResourceMap = mergeDeep(layoutResourceMap, {
-        ParametersPanel: { resource: { x: 1, y: 0, w: 8, h: 4, shown: true } },
-        InputOutputPanel: { resource: { x: 1, y: 13, shown: true } },
-        EditPanel: { resource: { x: 10, y: 0, shown: true } },
-        LayersPanel: { resource: { x: -1, y: 10, shown: true } },
+        ParametersPanel: {
+          resource: { x: 24, y: 0, w: 144, h: 96, shown: true },
+        },
+        InputOutputPanel: { resource: { x: 24, y: 312, shown: true } },
+        EditPanel: { resource: { x: 240, y: 0, shown: true } },
+        LayersPanel: { resource: { x: -24, y: 240, shown: true } },
         MatricesButton: { resource: { enabled: true } },
         MatricesPanel: {
-          resource: { clientHeight: height, y: -9, shown: false },
+          resource: { clientHeight: height, y: -216, shown: false },
         },
       });
     }
@@ -338,11 +321,14 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
     Object.keys(layoutResourceMap).forEach((key, index) => {
       const item = layoutResourceMap[key];
       if (item) {
-        item.layout.x = getX(item.layout.x);
-        item.layout.y = getY(item.layout.y, height);
-        item.layout.zIndex = key.endsWith('Button') ? index * -1 : index;
+        //item.layout.x = getX(item.layout.x, width);
+        //item.layout.y = getY(item.layout.y, height);
+
+        //console.log(item.layout.i, item.layout.y, height);
+
+        item.itemState.zIndex = key.endsWith('Button') ? index * -1 : index;
         const resource = item.resource as unknown as FloatingButtonResource;
-        switch (item.layout.i) {
+        switch (item.itemState.i) {
           case 'ZoomInButton':
             resource.onClick = onZoomIn;
             break;
@@ -464,8 +450,8 @@ export const SimDesktopComponent = (props: SimDesktopComponentProps) => {
   return (
     <DesktopComponent
       uuid={uuid}
-      layoutResourceMap={layoutResourceMap}
-      gridItemMap={gridItemChildrenMap}
+      resourceMap={layoutResourceMap}
+      itemMap={gridItemChildrenMap}
       backgroundColor={backgroundColor}
     >
       {props.backgroundPanel({

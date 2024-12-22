@@ -5,15 +5,12 @@ import { Redo } from '@mui/icons-material';
 import { FloatingButtonItem } from '/app/models/FloatingButtonItem';
 
 export const RedoButton: FloatingButtonItem = {
-  layout: {
+  itemState: {
     i: 'RedoButton',
     x: 0,
-    y: -5,
-    w: 1,
-    h: 1,
-    resizeHandles: [],
-    isDraggable: true,
-    isResizable: false,
+    y: -120,
+    w: 24,
+    h: 24,
     shown: true,
     enabled: true,
     maximized: false,

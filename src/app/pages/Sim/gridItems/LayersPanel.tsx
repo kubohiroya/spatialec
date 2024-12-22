@@ -1,20 +1,15 @@
 import { GridItemTypes } from '/app/models/GridItemType';
-import { Layers } from '@mui/icons-material';
-import React from 'react';
+//import { Layers } from '@mui/icons-material';
+import Layers from '~icons/mdi/layers?raw';
 import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
-import { RESIZE_HANDLES } from '/app/pages/Sim/gridItems/Constants';
-import { ROW_HEIGHT } from '/app/pages/Sim/DesktopConstants';
 
 export const LayersPanel: FloatingPanelItem = {
-  layout: {
+  itemState: {
     i: 'LayersPanel',
-    x: 22,
-    y: 7,
-    w: 10,
-    h: 8,
-    isDraggable: true,
-    isResizable: true,
-    resizeHandles: RESIZE_HANDLES,
+    x: 528,
+    y: 594,
+    w: 323,
+    h: 260,
     shown: true,
     enabled: true,
     maximized: false,
@@ -23,9 +18,7 @@ export const LayersPanel: FloatingPanelItem = {
     id: 'LayersPanel',
     type: GridItemTypes.FloatingPanel,
     title: 'Layers',
-    icon: <Layers />,
-    titleBarMode: 'win',
-    rowHeight: ROW_HEIGHT,
+    icon: Layers,
     bindToButtonId: 'LayersButton',
   },
 };

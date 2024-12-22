@@ -5,13 +5,13 @@ import {
   GeoDatabaseTableTypes,
 } from '../../models/GeoDatabaseTableType';
 import { LayerPanelState } from '/app/models/LayerPanelState';
-import { LayoutState } from '/app/pages/Sim/LayoutState';
+import { ItemState } from '/app/pages/Sim/ItemState';
 
 export class Projects extends Dexie {
   public layerPanelState: Dexie.Table<LayerPanelState, number>;
   static layerPanelState = 'layerPanelState';
 
-  public layoutState: Dexie.Table<LayoutState, number>;
+  public layoutState: Dexie.Table<ItemState, number>;
   static layoutState = 'layoutState';
 
   public constructor(name: string) {
@@ -35,7 +35,7 @@ export class Projects extends Dexie {
     this.layoutState = this.table(Projects.layoutState);
   }
 
-  static async saveLayoutState(uuid: string, layoutStates: LayoutState[]) {
+  static async bulkUpdateItemStates(uuid: string, layoutStates: ItemState[]) {
     const componentState = layoutStates.map((l, index) => {
       return { ...l, zIndex: index };
     });
@@ -44,11 +44,20 @@ export class Projects extends Dexie {
       await db.layoutState.clear();
       await db.layoutState.bulkAdd(componentState);
     });
+    console.log('updateItemState');
   }
 
-  static async getLayoutStates(
-    uuid: string
-  ): Promise<LayoutState[] | undefined> {
+  static async updateItemStates(uuid: string, layoutStates: ItemState[]) {
+    const db = await Projects.openProject(uuid);
+    db.transaction('rw', db.layoutState, async (tr) => {
+      layoutStates.forEach((l, index) => {
+        tr.table('layoutState').where('i').equals(l.i).modify(l);
+      });
+    });
+    console.log('updateItemState');
+  }
+
+  static async getItemStates(uuid: string): Promise<ItemState[] | undefined> {
     const db = await Projects.openProject(uuid);
     return (await db.layoutState.toArray()).sort((a, b) =>
       a.zIndex && b.zIndex ? a.zIndex - b.zIndex : 0
@@ -65,13 +74,13 @@ export class Projects extends Dexie {
     }
   }
 
-  async getComponentState(name: string): Promise<LayoutState | undefined> {
-    return await this.layoutState.where('name').equals(name).last();
+  async getComponentState(name: string): Promise<ItemState | undefined> {
+    return this.layoutState.where('name').equals(name).last();
   }
 
   async updateComponentState(
     name: string,
-    componentState: Partial<LayoutState>
+    componentState: Partial<ItemState>
   ): Promise<void> {
     await this.layoutState.where('name').equals(name).modify(componentState);
   }

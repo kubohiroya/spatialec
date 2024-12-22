@@ -1,20 +1,15 @@
 import { GridItemTypes } from '/app/models/GridItemType';
-import { GridOn } from '@mui/icons-material';
-import React from 'react';
+//import { GridOn } from '@mui/icons-material';
+import GridOn from '~icons/mdi/grid-on?raw';
 import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
-import { RESIZE_HANDLES } from '/app/pages/Sim/gridItems/Constants';
-import { ROW_HEIGHT } from '/app/pages/Sim/DesktopConstants';
 
 export const MatricesPanel: FloatingPanelItem = {
-  layout: {
+  itemState: {
     i: 'MatricesPanel',
-    x: 10,
-    y: -9,
-    w: 23,
-    h: 9,
-    isDraggable: true,
-    isResizable: true,
-    resizeHandles: RESIZE_HANDLES,
+    x: 240,
+    y: 300,
+    w: 1200,
+    h: 365,
     shown: true,
     enabled: true,
     maximized: false,
@@ -23,9 +18,7 @@ export const MatricesPanel: FloatingPanelItem = {
     id: 'MatricesPanel',
     type: GridItemTypes.FloatingPanel,
     title: 'Matrices',
-    icon: <GridOn />,
-    titleBarMode: 'win',
-    rowHeight: ROW_HEIGHT,
+    icon: GridOn,
     bindToButtonId: 'MatricesButton',
   },
 };

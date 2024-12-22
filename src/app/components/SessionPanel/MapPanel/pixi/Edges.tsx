@@ -26,9 +26,6 @@ const EdgeItem = (props: EdgesProps & { edge: Edge; index: number }) => {
   const targetIndex = convertIdToIndex(props.locations, props.edge.target);
   const source = props.locations[sourceIndex];
   const target = props.locations[targetIndex];
-  if (!source || !target) {
-    return;
-  }
   const { x: midx, y: midy } = {
     x: (source.point[0] + target.point[0]) / 2,
     y: (source.point[1] + target.point[1]) / 2,
@@ -46,8 +43,12 @@ const EdgeItem = (props: EdgesProps & { edge: Edge; index: number }) => {
       g.moveTo(source.point[0], source.point[1]);
       g.lineTo(target.point[0], target.point[1]);
     },
-    [source.point[0], target.point[0], source.point[1], target.point[1]],
+    [source.point[0], target.point[0], source.point[1], target.point[1]]
   );
+
+  if (!source || !target) {
+    return;
+  }
 
   return (
     <Container key={props.index}>

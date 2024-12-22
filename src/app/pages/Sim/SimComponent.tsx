@@ -1,6 +1,4 @@
-import React, { ComponentState, ReactNode, useEffect, useState } from 'react';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
+import React, { ReactNode, useEffect } from 'react';
 import { City, resetCity } from '/app/models/City';
 import { Edge } from '/app/models/Graph';
 import { SessionState } from '/app/models/SessionState';

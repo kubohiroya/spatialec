@@ -4,15 +4,16 @@ import {
   LoaderFunctionArgs,
   useLoaderData as useRrdLoaderData,
 } from 'react-router-dom';
+import { ReactElement, ReactNode } from 'react';
 
 export function useLoaderData<
-  TLoader extends ReturnType<typeof deferredLoader>,
+  TLoader extends ReturnType<typeof deferredLoader>
 >() {
   return useRrdLoaderData() as ReturnType<TLoader>['data'];
 }
 
 export function deferredLoader<TData extends Record<string, unknown>>(
-  dataFunc: (args: LoaderFunctionArgs) => TData,
+  dataFunc: (args: LoaderFunctionArgs) => TData
 ) {
   return (args: LoaderFunctionArgs) =>
     defer(dataFunc(args)) as Omit<ReturnType<typeof defer>, 'data'> & {
@@ -21,12 +22,12 @@ export function deferredLoader<TData extends Record<string, unknown>>(
 }
 
 export interface AwaitResolveRenderFunction<T> {
-  (data: Awaited<T>): React.ReactElement;
+  (data: Awaited<T>): ReactElement;
 }
 
 export interface AwaitProps<T> {
-  children: React.ReactNode | AwaitResolveRenderFunction<T>;
-  errorElement?: React.ReactNode;
+  children: ReactNode | AwaitResolveRenderFunction<T>;
+  errorElement?: ReactNode;
   resolve: Promise<T>;
 }
 

@@ -1,22 +1,15 @@
 import { GridItemTypes } from '/app/models/GridItemType';
-import { Tune } from '@mui/icons-material';
-import React from 'react';
+//import { Tune } from '@mui/icons-material';
+import Tune from '~icons/mdi/tune?raw';
 import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
-import { RESIZE_HANDLES } from '/app/pages/Sim/gridItems/Constants';
-import { ROW_HEIGHT } from '/app/pages/Sim/DesktopConstants';
 
 export const ParametersPanel: FloatingPanelItem = {
-  layout: {
+  itemState: {
     i: 'ParametersPanel',
-    x: 1,
+    x: 24,
     y: 0,
-    w: 8,
-    h: 4,
-    minW: 8,
-    minH: 4,
-    isDraggable: true,
-    isResizable: true,
-    resizeHandles: RESIZE_HANDLES,
+    w: 317,
+    h: 337,
     shown: true,
     enabled: true,
     maximized: false,
@@ -25,9 +18,7 @@ export const ParametersPanel: FloatingPanelItem = {
     id: 'ParametersPanel',
     type: GridItemTypes.FloatingPanel,
     title: 'Parameters',
-    icon: <Tune />,
-    titleBarMode: 'win',
-    rowHeight: ROW_HEIGHT,
+    icon: Tune,
     bindToButtonId: 'ParametersButton',
   },
 };

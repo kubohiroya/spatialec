@@ -5,16 +5,16 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import DeckGL from '@deck.gl/react/typed';
+import DeckGL from '@deck.gl/react';
 import { Map as ReactMap } from 'react-map-gl/maplibre';
-import { MapView, PickingInfo } from '@deck.gl/core/typed';
+import { MapView, PickingInfo, ViewStateChangeParameters } from '@deck.gl/core';
 import { getBounds } from '/app/utils/mapUtil';
 import {
   getTilesMortonNumbersForAllZooms,
   MAX_ZOOM_LEVEL,
   modifyMortonNumbers,
 } from '/app/utils/mortonNumberUtil';
-import { deepEqual } from '@deck.gl/core/src/utils/deep-equal';
+// import { deepEqual } from '@deck.gl/core/src/utils/deep-equal';
 import { WorkerPool } from '/app/worker/WorkerPool';
 import GeoQueryWorker from '../../../../worker/GeoQueryWorker?worker';
 import { CircularProgress } from '@mui/material';
@@ -22,7 +22,6 @@ import { useLoaderData, useNavigate } from 'react-router-dom';
 import { QueryRequest } from '/app/models/QueryRequest';
 import { GeoRequestPayload } from '/app/models/GeoRequestPayload';
 import { SimLoaderResult } from '/app/pages/Sim/SimLoader';
-import { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller';
 import { ProjectTypes } from '/app/models/ProjectType';
 
 import { createLayers } from '/app/components/SessionPanel/MapPanel/deckgl/createLayers';
@@ -32,8 +31,7 @@ import { Projects } from '/app/services/database/Projects';
 import { useNotifyTableChanged } from '/app/services/database/useNotifyTableChanged';
 import { MapTileResourceEntity } from '/app/models/ResourceEntity';
 import { ResourceTable } from '/app/services/database/ResourceTable';
-import { ResourceTypes } from '/app/models/ResourceType';
-import { Resources } from '/app/services/database/Resources';
+import deepEqual from 'deep-equal';
 
 // const MAP_TILER_API_KEY = import.meta.env.VITE_MAP_TILER_API_KEY;
 
@@ -169,14 +167,15 @@ export const MapComponent = (props: MapComponentProps) => {
   const [geoResponse, setGeoResponse] =
     useState<GeoResponseTransferable | null>(null);
 
+  /*
   const [gl, setGl] = useState<WebGLRenderingContext | null>(null);
-
   const onWebGLInitialized = useCallback((gl: WebGLRenderingContext) => {
     setGl(gl);
   }, []);
+   */
 
   const layers = useMemo(() => {
-    if (gl === null || !geoResponse) {
+    if (/*gl === null || */ !geoResponse) {
       return [];
     }
     const circlesBuffer = geoResponse[0];
@@ -190,7 +189,6 @@ export const MapComponent = (props: MapComponentProps) => {
     const fillColors = geoResponse[8];
 
     return createLayers(
-      gl,
       circlesBuffer,
       linesBuffer,
       lineIndices,
@@ -201,7 +199,7 @@ export const MapComponent = (props: MapComponentProps) => {
       lineColors,
       fillColors
     );
-  }, [gl, geoResponse]);
+  }, [/*gl, */ geoResponse]);
 
   const [worker, setWorker] = useState<null | WorkerPool<
     QueryRequest<GeoRequestPayload>,
@@ -264,8 +262,7 @@ export const MapComponent = (props: MapComponentProps) => {
       zoom
     );
 
-    if (deepEqual(mortonNumbers, newMortonNumbers[MAX_ZOOM_LEVEL - 1], 2))
-      return;
+    if (deepEqual(mortonNumbers, newMortonNumbers[MAX_ZOOM_LEVEL - 1])) return;
 
     setMortonNumbers(newMortonNumbers[MAX_ZOOM_LEVEL - 1]);
 
@@ -301,8 +298,8 @@ export const MapComponent = (props: MapComponentProps) => {
     const tooltipData = hoveredObject.polygon
       ? `Region: ${hoveredObject.name}`
       : hoveredObject.name
-        ? `Location: ${hoveredObject.name}`
-        : `Route: ${hoveredObject.source} - ${hoveredObject.target}`;
+      ? `Location: ${hoveredObject.name}`
+      : `Route: ${hoveredObject.source} - ${hoveredObject.target}`;
 
     return (
       <div
@@ -335,25 +332,24 @@ export const MapComponent = (props: MapComponentProps) => {
   useNotifyTableChanged(
     Projects.openProject(props.uuid),
     Projects.layerPanelState,
-     (database) => {
+    (database) => {
       updateMapStyle();
-    });
+    }
+  );
 
-  const updateMapStyle = ()=>{
-    data.project.layerPanelState.toArray().then(selectedResourceUUIDs => {
+  const updateMapStyle = () => {
+    data.project.layerPanelState.toArray().then((selectedResourceUUIDs) => {
       const mapTileUuid = selectedResourceUUIDs[0].mapTileUuid;
       ResourceTable.getResource(mapTileUuid).then((resource) => {
         const mapTile = resource as unknown as MapTileResourceEntity;
-        if (mapTile && mapTile?.mapName && mapTile?.apiKey){
+        if (mapTile && mapTile?.mapName && mapTile?.apiKey) {
           setMapStyle(
-            `https://api.maptiler.com/maps/${
-              mapTile.mapName
-            }/style.json?key=${mapTile.apiKey}`
+            `https://api.maptiler.com/maps/${mapTile.mapName}/style.json?key=${mapTile.apiKey}`
           );
         }
       });
     });
-  }
+  };
 
   const onViewStateChange = useCallback(
     (evt: ViewStateChangeParameters & { viewId: string }) => {
@@ -370,7 +366,13 @@ export const MapComponent = (props: MapComponentProps) => {
     return (
       <CircularProgress
         variant="indeterminate"
-        style={{ position: 'absolute', left: '3.9px', top: '0.5px' }}
+        style={{
+          position: 'absolute',
+          left: '2.5px',
+          top: '2.5px',
+          width: '28px',
+          height: '28px',
+        }}
       />
     );
   }
@@ -382,8 +384,7 @@ export const MapComponent = (props: MapComponentProps) => {
       height={props.height}
       controller={true}
       layers={layers}
-      viewState={viewState}
-      onWebGLInitialized={onWebGLInitialized}
+      //viewState={viewState}
       onViewStateChange={onViewStateChange}
     >
       <ReactMap mapStyle={mapStyle} />

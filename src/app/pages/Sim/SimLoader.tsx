@@ -1,5 +1,3 @@
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
 import { atom, WritableAtom } from 'jotai/index';
 import { UIState } from '/app/models/UIState';
 import { SessionState } from '/app/models/SessionState';
@@ -10,20 +8,18 @@ import {
 } from '/app/hooks/useUndoRedo';
 import { ChartTypes } from '/app/models/ChartType';
 import { atomWithImmer } from 'jotai-immer';
-import { Draft, enablePatches } from 'immer';
+import { Draft } from 'immer';
 import { updateAddedSubGraph } from '/app/components/SessionPanel/MapPanel/GraphHandlers';
 import { LoaderFunctionArgs } from 'react-router-dom';
 import { PrimitiveAtom } from 'jotai';
 import { parameterSet } from './TypeToCategory';
 import { Projects } from '/app/services/database/Projects';
 
-enablePatches();
-
 export type SessionStateAtom = WritableAtom<
   UndoRedoState<SessionState>,
   [
     | UndoRedoState<SessionState>
-    | ((draft: Draft<UndoRedoState<SessionState>>) => void),
+    | ((draft: Draft<UndoRedoState<SessionState>>) => void)
   ],
   void
 >;
@@ -47,7 +43,7 @@ const graph = updateAddedSubGraph(
     locationSerialNumber: 0,
   },
   [],
-  parameterSet.numLocations,
+  parameterSet.numLocations
 );
 
 const initialSessionState: SessionState = {
@@ -88,7 +84,7 @@ export const SimLoader = async function (
       y: string;
       x: string;
     };
-  }>,
+  }>
 ): Promise<SimLoaderResult> {
   const type = request.params.projectType!;
   const uuid = request.params.uuid!;

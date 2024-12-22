@@ -1,4 +1,4 @@
-import { Color } from "@deck.gl/core/typed";
+import { Color } from '@deck.gl/core';
 
 export type LineSource = {
   sourcePositionIDRef: string; // 2
@@ -17,7 +17,7 @@ export const lineBufferDatumElementSize = 24;
 
 export function convertLinesToBuffer(
   lines: LineSource[],
-  idToPoint2DMap: Map<string, [number, number]>,
+  idToPoint2DMap: Map<string, [number, number]>
 ): LineBuffer {
   const indices = new ArrayBuffer(lines.length * lineBufferIndexElementSize);
   const indicesView = new DataView(indices);

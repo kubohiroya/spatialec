@@ -1,232 +1,104 @@
-import React, {
-  ComponentProps,
-  forwardRef,
-  MouseEvent,
-  ReactNode,
-  TouchEvent,
-} from 'react';
-import {
-  Box,
-  Card,
-  CardActions,
-  CardHeader,
-  IconButton,
-  Typography,
-} from '@mui/material';
-import {
-  Close,
-  CloseFullscreen,
-  OpenInFull,
-  Remove,
-} from '@mui/icons-material';
-import { RowBox } from '../RowBox/RowBox';
+import React, { forwardRef, ReactNode } from 'react';
+import { CardContent } from '@mui/material';
 import styled from '@emotion/styled';
+import WinBox from 'react-winbox';
+import { base64Encode } from '/app/utils/base64Util';
+import { addXmlnsToSvg } from '/app/utils/svgUtil';
+import { FloatingPanelResource } from '/app/models/FloatingPanelResource';
 
-const FloatingCard = styled(Card)`
-  background-color: rgba(255, 255, 255, 0.95);
+const StyledWinBox = styled(WinBox)`
+  border-radius: 8px;
 `;
+
+const FloatingPanelContent = styled(CardContent)`
+  padding: 8px;
+  margin: 0;
+  overflow: hidden;
+`;
+
+const DEFAULT_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 18 18"><path fill="#fff" d="m1.613.21.094.083L8 6.585 14.293.293l.094-.083a1 1 0 0 1 1.403 1.403l-.083.094L9.415 8l6.292 6.293a1 1 0 0 1-1.32 1.497l-.094-.083L8 9.415l-6.293 6.292-.094.083A1 1 0 0 1 .21 14.387l.083-.094L6.585 8 .293 1.707A1 1 0 0 1 1.613.21z"/></svg>';
 
 type FloatingPanelProps = {
   id: string;
   key: string;
-  shown: boolean;
   title: string;
   icon: ReactNode;
-  rowHeight: number;
-  subheader?: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  maximized: boolean;
+  minimized: boolean;
+  resource: FloatingPanelResource;
+  onShow: (id: string, buttonId: string, shown: boolean) => void;
+  onFocus: (id: string) => void;
+  onMaximize: (id: string, maximize: boolean) => void;
+  onResize: (id: string, w: number, h: number) => void;
+  onMove: (id: string, x: number, y: number) => void;
   children: ReactNode;
-  style?: any;
-  onMouseDown?: (event: MouseEvent) => void;
-  onMouseUp?: (event: MouseEvent) => void;
-  onTouchEnd?: (event: TouchEvent) => void;
-  titleBarMode: 'win' | 'mac';
-  setToFront: () => void;
-  onClose?: () => void;
-  maximized?: boolean;
-  onMaximize?: (maximize: boolean) => void;
-} & ComponentProps<'div'>;
-
-const MiniWindowControlButton = styled(IconButton)`
-  padding: 2px;
-  height: 18px;
-  margin: 7px 4px 3px 0;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-
-  .MuiSvgIcon-root {
-    width: 12px;
-    height: 12px;
-  }
-`;
-
-const MiniWindowTitleIcon = styled(Box)`
-  margin-top: 4px;
-`;
+};
 
 export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(
   (
     {
       id,
-      key,
-      shown,
-      title,
-      icon,
-      rowHeight,
-      subheader,
-      children,
-      style,
-      onMouseDown,
-      onMouseUp,
-      onTouchEnd,
-      setToFront,
-      onClose,
+      x,
+      y,
+      w,
+      h,
       maximized,
+      minimized,
+      resource,
+      onShow,
+      onFocus,
       onMaximize,
-      titleBarMode,
+      onResize,
+      onMove,
+      children,
     }: FloatingPanelProps,
     ref
   ) => {
-    const hideMe = () => {
-      onClose && onClose();
-    };
-    const maximizeMe = () => {
-      onMaximize && onMaximize(true);
-    };
-    const demaximizeMe = () => {
-      onMaximize && onMaximize(false);
-    };
-
-    const iconSize = 26;
-    const titleBarMarginRight = iconSize * (titleBarMode === 'win' ? 2 : 0);
-
-    if (!shown) return null;
-
     return (
-      <FloatingCard
+      <StyledWinBox
+        noFull
         id={id}
-        ref={ref}
-        key={key}
-        style={{ ...style }}
-        onMouseDown={(ev: MouseEvent) => {
-          const rect = document.getElementById(id)!.getBoundingClientRect();
-          if (
-            titleBarMarginRight < rect.right - ev.clientX &&
-            ev.clientY - rect.top < 26
-          ) {
-            setToFront();
-            onMouseDown && onMouseDown(ev);
-          }
+        key={id}
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        max={maximized}
+        min={minimized}
+        title={resource.title ?? ''}
+        border={4}
+        icon={
+          'data:image/svg+xml;base64,' +
+          base64Encode(
+            addXmlnsToSvg(
+              typeof resource.icon === 'string' ? resource.icon : DEFAULT_ICON
+            )
+          )
+        }
+        onClose={() => {
+          setTimeout(() => {
+            if (resource.bindToButtonId) {
+              onShow(id, resource.bindToButtonId, false);
+            }
+          }, 1);
         }}
-        onMouseUp={onMouseUp}
-        onTouchEnd={onTouchEnd}
+        onFocus={() => onFocus(id)}
+        onMaximize={() => onMaximize(id, true)}
+        onMinimize={() => onMaximize(id, false)}
+        onResize={(w: number, h: number) => {
+          onResize(id, w, h);
+        }}
+        onMove={(x: number, y: number) => {
+          onMove(id, x, y);
+        }}
       >
-        <CardHeader
-          title={
-            <Box
-              style={{
-                userSelect: 'none',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: rowHeight + 'px',
-                display: 'flex',
-                flexDirection: 'row',
-                marginLeft: '8px',
-              }}
-            >
-              {titleBarMode === 'mac' && (
-                <>
-                  <MiniWindowControlButton
-                    size="small"
-                    onClick={() => {
-                      console.log('close');
-                    }}
-                  >
-                    <Close />
-                  </MiniWindowControlButton>
-                  <MiniWindowControlButton
-                    size="small"
-                    onClick={() => {
-                      console.log('remove');
-                    }}
-                  >
-                    <Remove />
-                  </MiniWindowControlButton>
-                  <MiniWindowControlButton
-                    size="small"
-                    onClick={() => {
-                      console.log('open in full');
-                    }}
-                  >
-                    <OpenInFull />
-                  </MiniWindowControlButton>
-                </>
-              )}
-              <RowBox className="draggable">
-                <MiniWindowTitleIcon>{icon}</MiniWindowTitleIcon>
-                <Typography style={{ marginLeft: '4px', marginTop: '4px' }}>
-                  {title}
-                </Typography>
-              </RowBox>
-              {titleBarMode === 'win' && (
-                <>
-                  {maximized ? (
-                    <IconButton
-                      size="small"
-                      style={{ margin: 0, padding: 0 }}
-                      aria-label="demaximize"
-                      title="demaximize"
-                      onClick={demaximizeMe}
-                    >
-                      <CloseFullscreen
-                        style={{ width: '18px', height: '18px' }}
-                      />
-                    </IconButton>
-                  ) : (
-                    <IconButton
-                      size="small"
-                      style={{ margin: 0, padding: 0 }}
-                      aria-label="maximize"
-                      title="maximize"
-                      onClick={maximizeMe}
-                    >
-                      <OpenInFull style={{ width: '18px', height: '18px' }} />
-                    </IconButton>
-                  )}
-
-                  <IconButton
-                    size="small"
-                    aria-label="close"
-                    style={{ marginRight: '6px' }}
-                    onClick={hideMe}
-                    title="close"
-                  >
-                    <Close />
-                  </IconButton>
-                </>
-              )}
-            </Box>
-          }
-          style={{
-            cursor: 'move',
-            height: '18px',
-            backgroundColor: 'rgba(255,255,255,0.90)',
-            padding: '6px',
-            borderBottom: '1px solid rgba(0,0,0,0.1)',
-          }}
-          titleTypographyProps={{ fontSize: '16px' }}
-        ></CardHeader>
-        <Box
-          style={{
-            overflow: 'auto',
-            height: '90%',
-          }}
-        >
-          {children}
-        </Box>
-        <CardActions></CardActions>
-      </FloatingCard>
+        <FloatingPanelContent>{children}</FloatingPanelContent>
+      </StyledWinBox>
     );
   }
 );

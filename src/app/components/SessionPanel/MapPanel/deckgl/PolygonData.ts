@@ -1,4 +1,4 @@
-import { BinaryAttribute } from "@deck.gl/core/typed";
+import { BinaryAttribute } from '@deck.gl/core';
 
 export type PolygonData = {
   length: number;

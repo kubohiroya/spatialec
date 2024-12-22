@@ -1,22 +1,14 @@
 import { GridItemTypes } from '/app/models/GridItemType';
-import { Info } from '@mui/icons-material';
-import React from 'react';
+import Info from '~icons/mdi/info?raw';
 import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
-import { RESIZE_HANDLES } from '/app/pages/Sim/gridItems/Constants';
-import { ROW_HEIGHT } from '/app/pages/Sim/DesktopConstants';
 
 export const InfoPanel: FloatingPanelItem = {
-  layout: {
+  itemState: {
     i: 'InfoPanel',
-    x: 10,
+    x: 308,
     y: 0,
-    w: 5,
-    h: 3,
-    minW: 5,
-    minH: 3,
-    resizeHandles: RESIZE_HANDLES,
-    isDraggable: true,
-    isResizable: true,
+    w: 200,
+    h: 72,
     shown: true,
     enabled: true,
     maximized: false,
@@ -25,9 +17,7 @@ export const InfoPanel: FloatingPanelItem = {
     id: 'InfoPanel',
     type: GridItemTypes.FloatingPanel,
     title: 'Information',
-    icon: <Info />,
-    titleBarMode: 'win',
-    rowHeight: ROW_HEIGHT,
+    icon: Info,
     bindToButtonId: 'InfoButton',
   },
 };

@@ -1,4 +1,4 @@
-import { Color } from "@deck.gl/core/typed";
+import { Color } from '@deck.gl/core';
 
 export type CircleSource = {
   id: string; // no for store

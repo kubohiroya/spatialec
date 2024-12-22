@@ -1,13 +1,12 @@
-import { PolygonLayerProps, SolidPolygonLayer } from '@deck.gl/layers/typed';
+import { PolygonLayerProps, SolidPolygonLayer } from '@deck.gl/layers';
 
 export function createPolygonsLayer(
-  gl: WebGLRenderingContext,
   positions: ArrayBuffer,
   polygonIndices: ArrayBuffer,
   pathIndices: ArrayBuffer,
   lineWidths: ArrayBuffer,
   lineColors: ArrayBuffer,
-  fillColors: ArrayBuffer,
+  fillColors: ArrayBuffer
 ): SolidPolygonLayer {
   const positionsArray = new Float32Array(positions);
   const polygonIndicesArray = new Uint32Array(polygonIndices);

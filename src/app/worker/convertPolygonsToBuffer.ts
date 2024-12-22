@@ -1,4 +1,4 @@
-import { Color } from '@deck.gl/core/typed';
+import { Color } from '@deck.gl/core';
 
 export type PolygonSource = {
   strokeWidth: number; // 4
@@ -21,7 +21,7 @@ export const indexItemSize = 4; // Uint32 x 1
 export const polygonMetadataItemSize = 4 + 4 + 4; // Float32 x 1 + Uint8 x 4 + Uint8 x 4
 
 export function convertPolygonsToBuffer(
-  sources: PolygonSource[], // geojson: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon>,
+  sources: PolygonSource[] // geojson: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon>,
 ): PolygonBuffer {
   let totalPositions = 0;
   let totalPaths = 0;
@@ -36,11 +36,11 @@ export function convertPolygonsToBuffer(
   });
 
   const positions: ArrayBuffer = new ArrayBuffer(
-    totalPositions * vertexItemSize,
+    totalPositions * vertexItemSize
   );
 
   const polygonIndices: ArrayBuffer = new ArrayBuffer(
-    sources.length * indexItemSize,
+    sources.length * indexItemSize
   ); // Uint32 x 1
   const pathIndices: ArrayBuffer = new ArrayBuffer(totalPaths * indexItemSize); // Uint32 x 1
   const positionsIndices: ArrayBuffer = new ArrayBuffer(totalPositions * 4 * 2); // Float32 x 2

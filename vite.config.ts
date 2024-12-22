@@ -2,6 +2,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import Icons from 'unplugin-icons/vite';
+import IconsResolver from 'unplugin-icons/resolver';
+import AutoImport from 'unplugin-auto-import/vite';
 
 export default defineConfig({
   root: __dirname,
@@ -33,7 +36,22 @@ export default defineConfig({
     host: 'localhost',
   },
 
-  plugins: [react(), nxViteTsPaths()],
+  plugins: [
+    react(),
+    nxViteTsPaths(),
+    AutoImport({
+      resolvers: [
+        IconsResolver({
+          enabledCollections: ['mdi'],
+          extension: 'jsx',
+        }),
+      ],
+    }),
+    Icons({
+      compiler: 'jsx',
+      jsx: 'react',
+    }),
+  ],
 
   // Uncomment this if you are using workers.
   // worker: {
@@ -46,10 +64,9 @@ export default defineConfig({
     commonjsOptions: {
       transformMixedEsModules: true,
     },
-    rollupOptions:{
-      external: [
-      ],
-    }
+    rollupOptions: {
+      external: [],
+    },
   },
 
   test: {

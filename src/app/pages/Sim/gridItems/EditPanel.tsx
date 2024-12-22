@@ -1,21 +1,15 @@
 import { GridItemTypes } from '/app/models/GridItemType';
-import { Edit } from '@mui/icons-material';
-import React from 'react';
+import Edit from '~icons/mdi/edit?raw';
 
 import { FloatingPanelItem } from '/app/models/FloatingPanelItem';
-import { RESIZE_HANDLES } from '/app/pages/Sim/gridItems/Constants';
-import { ROW_HEIGHT } from '/app/pages/Sim/DesktopConstants';
 
 export const EditPanel: FloatingPanelItem = {
-  layout: {
+  itemState: {
     i: 'EditPanel',
-    x: 1,
+    x: 24,
     y: 0,
-    w: 9,
-    h: 3,
-    resizeHandles: RESIZE_HANDLES,
-    isDraggable: true,
-    isResizable: true,
+    w: 210,
+    h: 91,
     shown: true,
     enabled: true,
     maximized: false,
@@ -24,9 +18,7 @@ export const EditPanel: FloatingPanelItem = {
     id: 'EditPanel',
     type: GridItemTypes.FloatingPanel,
     title: 'Edit Panel',
-    icon: <Edit />,
-    titleBarMode: 'win',
-    rowHeight: ROW_HEIGHT,
+    icon: Edit,
     bindToButtonId: 'EditButton',
   },
 };

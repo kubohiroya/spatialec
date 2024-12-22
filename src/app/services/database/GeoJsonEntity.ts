@@ -1,8 +1,8 @@
-import { MortonNumbers } from "/app/models/geo/MortonNumbers";
-import { TypedArray } from "@deck.gl/core/typed/types/types";
-import { Properties } from "maplibre-gl";
+import { MortonNumbers } from '/app/models/geo/MortonNumbers';
+import { Properties } from 'maplibre-gl';
+import { TypedArray } from '@luma.gl/core';
 
-interface PositionDataType {}
+type PositionDataType = any;
 
 //type PointFeatureProperties = any;
 //type LineStringFeatureProperties = {};
@@ -35,7 +35,7 @@ interface BinaryFeatureCollection {
               {
                 // Feature ids of source data (if present)
                 id?: string | number | undefined;
-              },
+              }
             ];
       }
     | undefined;
@@ -63,7 +63,7 @@ interface BinaryFeatureCollection {
               {
                 // Feature ids of source data (if present)
                 id?: string | number | undefined;
-              },
+              }
             ];
       }
     | undefined;
@@ -95,7 +95,7 @@ interface BinaryFeatureCollection {
               {
                 // Feature ids of source data (if present)
                 id?: string | number;
-              },
+              }
             ];
       }
     | undefined;

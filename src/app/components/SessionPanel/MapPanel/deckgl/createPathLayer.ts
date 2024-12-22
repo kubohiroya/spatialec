@@ -1,33 +1,34 @@
-import { PathLayer } from "@deck.gl/layers/typed";
-import { Buffer } from "@luma.gl/webgl";
-import GL from "@luma.gl/constants";
+import { PathLayer } from '@deck.gl/layers';
 
 export function createPathLayer(
-  gl: WebGLRenderingContext,
   linesBuffer: ArrayBuffer,
-  startIndices: ArrayBuffer,
+  startIndices: ArrayBuffer
 ): PathLayer {
-  const buffer = new Buffer(gl, linesBuffer);
+  // const buffer = new Buffer(device, linesBuffer);
+  // const positions = new Float64Array(linesBuffer.map((d) => d.path).flat(2));
 
   const getPath = {
-    buffer,
-    type: GL.FLOAT,
+    // buffer,
+    // type: GL.FLOAT,
+    value: new Float32Array(linesBuffer),
     size: 3,
     offset: 0,
     stride: 24,
   };
 
-  const getLineWidth = {
-    buffer,
-    type: GL.FLOAT,
+  const getWidth = {
+    //buffer,
+    //type: GL.FLOAT,
+    value: new Float32Array(linesBuffer),
     size: 1,
     offset: 16,
     stride: 24,
   };
 
-  const getLineColor = {
-    buffer,
-    type: GL.UNSIGNED_BYTE,
+  const getColor = {
+    //buffer,
+    //type: GL.UNSIGNED_BYTE,
+    value: new Uint8Array(linesBuffer),
     size: 4,
     offset: 20,
     stride: 24,
@@ -36,13 +37,15 @@ export function createPathLayer(
   return new PathLayer({
     id: 'path-layer',
     positionFormat: `XY`,
+    //getColor,
+    //getWidth,
     data: {
       length: startIndices.byteLength / 4,
       startIndices: new Uint32Array(startIndices),
       attributes: {
         getPath,
-        getLineWidth,
-        getLineColor,
+        getWidth,
+        getColor,
       },
     },
     pickable: true,

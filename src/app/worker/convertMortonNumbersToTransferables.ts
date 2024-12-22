@@ -2,16 +2,9 @@ import { GeoPointEntity } from '../models/geo/GeoPointEntity';
 import { GeoRouteSegmentEntity } from '../models/geo/GeoRouteSegmentEntity';
 import { GeoRegionEntity } from '../models/geo/GeoRegionEntity';
 import { Projects } from '../services/database/Projects';
-import { GeoDatabaseTableTypes } from '../models/GeoDatabaseTableType';
-import {
-  CircleSource,
-  convertCirclesToBuffer,
-} from './convertCirclesToBuffer';
-import {
-  convertLinesToBuffer,
-  LineSource,
-} from './convertLinesToBuffer';
-import { Color } from '@deck.gl/core/typed';
+import { CircleSource, convertCirclesToBuffer } from './convertCirclesToBuffer';
+import { convertLinesToBuffer, LineSource } from './convertLinesToBuffer';
+import { Color } from '@deck.gl/core';
 import {
   convertPolygonsToBuffer,
   PolygonSource,
@@ -23,23 +16,27 @@ import { Resources } from '../../app/services/database/Resources';
 export async function convertMortonNumbersToTransferables(
   uuid: string,
   mortonNumbers: number[][][],
-  zoom: number,
+  zoom: number
 ): Promise<GeoResponseTransferable> {
   const points: GeoPointEntity[][] = [];
   const routeSegments: GeoRouteSegmentEntity[][] = [];
   const regions: GeoRegionEntity[][] = [];
 
-  const selectedResourceUUIDs = await (await Projects.openProject(uuid)).getLayerPanelState();
-  if (! selectedResourceUUIDs){
-    throw new Error("NoGadmGeoJsonResourceEntity");
+  const selectedResourceUUIDs = await (
+    await Projects.openProject(uuid)
+  ).getLayerPanelState();
+  if (!selectedResourceUUIDs) {
+    throw new Error('NoGadmGeoJsonResourceEntity');
   }
 
-  await Promise.all(selectedResourceUUIDs.gadmGeoJsonUuid.map(async (uuid) => {
-    const db = await Resources.openResource(uuid);
-    points.push(await db.findAllGeoPoints(mortonNumbers, zoom));
-    routeSegments.push(await db.findAllGeoLineStrings(mortonNumbers, zoom));
-    regions.push(await db.findAllGeoRegions(mortonNumbers, zoom));
-  }));
+  await Promise.all(
+    selectedResourceUUIDs.gadmGeoJsonUuid.map(async (uuid) => {
+      const db = await Resources.openResource(uuid);
+      points.push(await db.findAllGeoPoints(mortonNumbers, zoom));
+      routeSegments.push(await db.findAllGeoLineStrings(mortonNumbers, zoom));
+      regions.push(await db.findAllGeoRegions(mortonNumbers, zoom));
+    })
+  );
 
   const circlesData = points.flat(1).map(
     (p) =>
@@ -50,7 +47,7 @@ export async function convertMortonNumbersToTransferables(
         strokeWidth: 1,
         strokeColor: [255, 0, 0, 255] as Color,
         fillColor: [255, 0, 0, 15] as Color,
-      }) as CircleSource,
+      } as CircleSource)
   );
 
   const idToPoint2DMap = createIDtoPoint2DMap(circlesData);
@@ -63,13 +60,13 @@ export async function convertMortonNumbersToTransferables(
         targetPositionIDRef: l.targetIdRef!,
         strokeWidth: 1,
         strokeColor: [0, 0, 255, 255] as Color,
-      }) as LineSource,
+      } as LineSource)
   );
 
   const circlesBuffer = convertCirclesToBuffer(circlesData);
   const { buffer: linesBuffer, indices: lineIndices } = convertLinesToBuffer(
     linesData,
-    idToPoint2DMap,
+    idToPoint2DMap
   );
 
   const a0 = [20, 40, 60, 20];
@@ -83,10 +80,10 @@ export async function convertMortonNumbersToTransferables(
     fillColor: (region.gid_2
       ? a0
       : region.gid_1
-        ? a1
-        : region.gid_0
-          ? a2
-          : a3) as Color,
+      ? a1
+      : region.gid_0
+      ? a2
+      : a3) as Color,
     coordinates: region.coordinates,
   }));
 

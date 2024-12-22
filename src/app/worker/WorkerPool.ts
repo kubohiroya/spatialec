@@ -13,12 +13,12 @@ export type WorkerWrapper = {
 export class WorkerPool<T extends WorkerTaskRequest, R> {
   private pool: WorkerWrapper[] = [];
   private taskQueue: T[] = [];
-  private onResult: (e: R) => void;
+  private readonly onResult: (e: R) => void;
 
   constructor(
     workerConstructor: new () => Worker,
     poolSize: number,
-    onResult: (e: R) => void,
+    onResult: (e: R) => void
   ) {
     this.onResult = onResult;
     for (let i = 0; i < poolSize; i++) {

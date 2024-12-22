@@ -1,18 +1,16 @@
 import { GridItemTypes } from '/app/models/GridItemType';
 import { History } from '@mui/icons-material';
+
 import React from 'react';
 import { FloatingButtonItem } from '/app/models/FloatingButtonItem';
 
 export const TimeMachineButton: FloatingButtonItem = {
-  layout: {
+  itemState: {
     i: 'TimeMachineButton',
     x: 0,
-    y: 8,
-    w: 1,
-    h: 1,
-    isDraggable: true,
-    isResizable: false,
-    resizeHandles: [],
+    y: 192,
+    w: 24,
+    h: 24,
     shown: true,
     enabled: false,
     maximized: false,

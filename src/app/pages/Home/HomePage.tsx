@@ -1,14 +1,15 @@
-import React, { useEffect } from "react";
-import { FullScreenBox } from "/components/FullScreenBox/FullScreenBox";
-import AppHeader from "/components/AppHeader/AppHeader";
-import { Share } from "@mui/icons-material";
-import { Outlet, useNavigate } from "react-router-dom";
-import GithubCorner from "react-github-corner";
-import { FileDropComponent } from "/app/components/FileDropComponent/FileDropComponent";
-import { useLocalFileHandler } from "./useLocalFileHandler";
+import React, { useEffect } from 'react';
+import { FullScreenBox } from '/components/FullScreenBox/FullScreenBox';
+import AppHeader from '/components/AppHeader/AppHeader';
+import { Share } from '@mui/icons-material';
+import { Outlet, useNavigate } from 'react-router-dom';
+import GithubCorner from 'react-github-corner';
+import { FileDropComponent } from '/app/components/FileDropComponent/FileDropComponent';
+import { useLocalFileHandler } from './useLocalFileHandler';
 import { APP_TITLE } from '/app/pages/Home/Constants';
-
+// @ts-ignore
 import packageInfo from '../../../../package.json?raw';
+
 const packageJson = JSON.parse(packageInfo);
 
 export const HomePage = () => {

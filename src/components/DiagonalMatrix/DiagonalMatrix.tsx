@@ -1,11 +1,16 @@
-import styled from "@emotion/styled";
-import React, { ForwardedRef, ReactNode } from "react";
-import { isInfinity, round } from "/app/utils/mathUtil";
-import { Box, CircularProgress } from "@mui/material";
-import { City } from "/app/models/City";
+import styled from '@emotion/styled';
+import React, {
+  ForwardedRef,
+  forwardRef,
+  ReactNode,
+  useImperativeHandle,
+} from 'react';
+import { isInfinity, round } from '/app/utils/mathUtil';
+import { Box, CircularProgress } from '@mui/material';
+import { City } from '/app/models/City';
 
 /* eslint-disable-next-line */
-export interface MatrixProps {
+export interface DiagonalMatrixProps {
   matrixId: string;
   icon: ReactNode;
   title: string;
@@ -24,17 +29,17 @@ export interface MatrixProps {
   onMouseEnter: (
     matrixId: string,
     rowIndex: number,
-    columnIndex: number,
+    columnIndex: number
   ) => void;
   onMouseLeave: (
     matrixId: string,
     rowIndex: number,
-    columnIndex: number,
+    columnIndex: number
   ) => void;
   onMouseDown: (
     matrixId: string,
     rowIndex: number,
-    columnIndex: number,
+    columnIndex: number
   ) => void;
   tableRef: ForwardedRef<HTMLTableElement>;
 }
@@ -131,7 +136,7 @@ function valueToStyle(
   value: number,
   max: number,
   focused: boolean,
-  selected: boolean,
+  selected: boolean
 ) {
   if (isInfinity(value)) {
     if (selected) {
@@ -210,8 +215,8 @@ const onMouseEnter = (
   onMouseEnterCallback: (
     matrixId: string,
     rowIndex: number,
-    columnIndex: number,
-  ) => void,
+    columnIndex: number
+  ) => void
 ) => {
   if (columnIndex - 1 === maxLength || rowIndex - 1 === maxLength) return;
   onMouseEnterCallback(matrixId, rowIndex, columnIndex);
@@ -225,8 +230,8 @@ const onMouseLeave = (
   onMouseLeaveCallback: (
     matrixId: string,
     rowIndex: number,
-    columnIndex: number,
-  ) => void,
+    columnIndex: number
+  ) => void
 ) => {
   if (columnIndex - 1 === maxLength || rowIndex - 1 === maxLength) return;
   onMouseLeaveCallback(matrixId, rowIndex, columnIndex);
@@ -240,20 +245,22 @@ const onMouseDown = (
   onMouseDownCallback: (
     matrixId: string,
     rowIndex: number,
-    columnIndex: number,
-  ) => void,
+    columnIndex: number
+  ) => void
 ) => {
   if (columnIndex - 1 === maxLength || rowIndex - 1 === maxLength) return;
   onMouseDownCallback(matrixId, rowIndex, columnIndex);
 };
 
-export const DiagonalMatrix = (props: MatrixProps) => {
+type DiagonalMatrixRef = () => void;
+
+export const DiagonalMatrix = (props: DiagonalMatrixProps) => {
   const valueMax: number =
     (props.data &&
       props.data.reduce(
         (prev, curr) =>
           Math.max(prev, ...curr.filter((value) => !isInfinity(value))),
-        0,
+        0
       )) ||
     0;
 
@@ -293,7 +300,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                   <th></th>
                   {props.data
                     .filter(
-                      (values, rowIndex) => rowIndex <= props.maxRowColLength,
+                      (values, rowIndex) => rowIndex <= props.maxRowColLength
                     )
                     .map(
                       (values, index) =>
@@ -307,7 +314,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                                 props.maxRowColLength,
                                 0,
                                 index + 1,
-                                props.onMouseEnter,
+                                props.onMouseEnter
                               )
                             }
                             onMouseLeave={() =>
@@ -316,7 +323,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                                 props.maxRowColLength,
                                 0,
                                 index + 1,
-                                props.onMouseLeave,
+                                props.onMouseLeave
                               )
                             }
                             onMouseDown={() =>
@@ -325,14 +332,14 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                                 props.maxRowColLength,
                                 0,
                                 index + 1,
-                                props.onMouseDown,
+                                props.onMouseDown
                               )
                             }
                             className={getClassName([index])}
                           >
                             {index === props.maxRowColLength ? '...' : index}
                           </th>
-                        ),
+                        )
                     )}
                 </tr>
               </thead>
@@ -353,7 +360,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                                 props.maxRowColLength,
                                 rowIndex + 1,
                                 0,
-                                props.onMouseEnter,
+                                props.onMouseEnter
                               )
                             }
                             onMouseLeave={() =>
@@ -362,7 +369,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                                 props.maxRowColLength,
                                 rowIndex + 1,
                                 0,
-                                props.onMouseLeave,
+                                props.onMouseLeave
                               )
                             }
                             onMouseDown={() =>
@@ -371,7 +378,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                                 props.maxRowColLength,
                                 rowIndex + 1,
                                 0,
-                                props.onMouseDown,
+                                props.onMouseDown
                               )
                             }
                             className={getClassName([rowIndex])}
@@ -382,23 +389,23 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                           </th>
                           {values
                             .filter(
-                              (value, index) => index <= props.maxRowColLength,
+                              (value, index) => index <= props.maxRowColLength
                             )
                             .map((value, columnIndex) => {
                               const { style, valueString } =
-                                rowIndex == props.maxRowColLength ||
-                                columnIndex == props.maxRowColLength
+                                rowIndex === props.maxRowColLength ||
+                                columnIndex === props.maxRowColLength
                                   ? { style: {}, valueString: '...' }
                                   : valueToStyle(
                                       props.rgb,
                                       value,
                                       valueMax,
                                       [columnIndex, rowIndex].some((index) =>
-                                        props.focusedIndices.includes(index),
+                                        props.focusedIndices.includes(index)
                                       ),
                                       [columnIndex, rowIndex].some((index) =>
-                                        props.selectedIndices.includes(index),
-                                      ),
+                                        props.selectedIndices.includes(index)
+                                      )
                                     );
 
                               return (
@@ -411,7 +418,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                                       props.maxRowColLength,
                                       rowIndex + 1,
                                       columnIndex + 1,
-                                      props.onMouseEnter,
+                                      props.onMouseEnter
                                     )
                                   }
                                   onMouseLeave={() =>
@@ -420,7 +427,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                                       props.maxRowColLength,
                                       rowIndex + 1,
                                       columnIndex + 1,
-                                      props.onMouseLeave,
+                                      props.onMouseLeave
                                     )
                                   }
                                   onMouseDown={() =>
@@ -429,7 +436,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                                       props.maxRowColLength,
                                       rowIndex + 1,
                                       columnIndex + 1,
-                                      props.onMouseDown,
+                                      props.onMouseDown
                                     )
                                   }
                                   className={
@@ -444,7 +451,7 @@ export const DiagonalMatrix = (props: MatrixProps) => {
                               );
                             })}
                         </tr>
-                      ),
+                      )
                   )}
               </tbody>
             </StyledTable>
@@ -455,4 +462,28 @@ export const DiagonalMatrix = (props: MatrixProps) => {
   );
 };
 
-export default DiagonalMatrix;
+export const DiagonalMatrixRef = forwardRef<
+  {
+    // focusRow: (rowIndex: number) => void;
+    focusColumn: (columnIndex: number) => void;
+    focusCell: (rowIndex: number, columnIndex: number) => void;
+  },
+  DiagonalMatrixProps
+>((props, ref) => {
+  // const inputRef= useRef({} as HTMLInputElement);
+  // const tableRef = useRef<HTMLTableElement | null>(null);
+
+  useImperativeHandle(ref, () => {
+    return {
+      // focusRow: (rowIndex: number) => inputRef.current.focus(),
+      focusColumn: (columnIndex: number) => {},
+      focusCell: (rowIndex: number, columnIndex: number) => {},
+    };
+  });
+
+  // tableRef={tableRef}
+
+  return <DiagonalMatrix {...props}></DiagonalMatrix>;
+});
+
+export default DiagonalMatrixRef;
